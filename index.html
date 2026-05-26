@@ -64,8 +64,6 @@
       animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    
-    /* Status modal */
     .status-modal .modal-content { max-width: 350px; }
     .status-icon { font-size: 48px; margin-bottom: 15px; }
     .btn-reset {
@@ -73,8 +71,6 @@
       transition: all 0.3s;
     }
     .btn-reset:active { transform: scale(0.97); }
-    
-    /* Purchase type selector */
     .purchase-type-btn {
       transition: all 0.3s ease;
       border: 2px solid #e5e7eb;
@@ -164,7 +160,7 @@
     </footer>
   </div>
 
-  <!-- Phone Modal (with Purchase Type Selection) -->
+  <!-- Phone Modal -->
   <div id="phoneModal" class="payment-modal">
     <div class="modal-content">
       <div class="modal-header flex justify-between items-center">
@@ -177,7 +173,6 @@
           <div id="offerAmount" class="text-2xl font-bold text-green-700"></div>
         </div>
         
-        <!-- Purchase Type Selection -->
         <div class="mb-4">
           <p class="text-sm text-gray-600 mb-2 font-medium">Purchase for:</p>
           <div class="flex gap-3">
@@ -192,24 +187,18 @@
           </div>
         </div>
         
-        <!-- My Number Section (for myself) -->
         <div id="myNumberSection">
           <label class="block text-gray-700 mb-2 font-medium">📱 My M-Pesa Number</label>
           <input type="tel" id="myPhoneInput" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg">
           <p class="text-xs text-gray-500 text-center mt-2">You'll receive an STK push. Enter PIN to pay.</p>
         </div>
         
-        <!-- Other Number Section (for someone else) - Redirects to external link -->
         <div id="otherNumberSection" class="hidden">
           <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-            <p class="text-sm text-yellow-800 text-center">
-              <i class="fas fa-external-link-alt mr-1"></i> 
-              You will be redirected to Bingwa Store to complete purchase for someone else.
-            </p>
+            <p class="text-sm text-yellow-800 text-center"><i class="fas fa-external-link-alt mr-1"></i> You will be redirected to Bingwa Store to complete purchase for someone else.</p>
           </div>
           <label class="block text-gray-700 mb-2 font-medium">👤 Recipient's Phone Number</label>
           <input type="tel" id="recipientPhoneInput" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg">
-          <p class="text-xs text-gray-500 text-center mt-2">Enter the number of the person receiving the bundle.</p>
         </div>
         
         <button id="payBtn" class="w-full mt-4 bg-green-700 text-white py-3 rounded-lg font-bold text-lg">Continue</button>
@@ -217,91 +206,47 @@
     </div>
   </div>
 
-  <!-- Status Modal (Shows transaction progress for "Myself" option) -->
+  <!-- Status Modal -->
   <div id="statusModal" class="payment-modal status-modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <span class="font-bold"><i class="fas fa-clock mr-2"></i>Transaction Status</span>
-      </div>
+      <div class="modal-header"><span class="font-bold"><i class="fas fa-clock mr-2"></i>Transaction Status</span></div>
       <div class="p-5 text-center">
-        <div id="statusIcon" class="status-icon">
-          <i class="fas fa-spinner fa-pulse text-green-600 text-5xl"></i>
-        </div>
+        <div id="statusIcon" class="status-icon"><i class="fas fa-spinner fa-pulse text-green-600 text-5xl"></i></div>
         <div id="statusTitle" class="text-lg font-bold text-gray-800 mb-2">Sending STK Push...</div>
-        <div id="statusMessage" class="text-sm text-gray-600 mb-4">Please wait while we send the payment request to your phone</div>
-        <div id="statusProgress" class="w-full bg-gray-200 rounded-full h-2 mb-4 overflow-hidden">
-          <div id="progressBar" class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-        </div>
+        <div id="statusMessage" class="text-sm text-gray-600 mb-4">Please wait...</div>
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-4 overflow-hidden"><div id="progressBar" class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
         <button id="closeStatusBtn" class="btn-reset w-full text-white py-2 rounded-lg font-medium hidden">Buy Another Bundle</button>
       </div>
     </div>
   </div>
 
+  <div id="toast" class="fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 hidden"></div>
+
   <script>
-    // EXTERNAL REDIRECT URL FOR "SOMEONE ELSE"
     const EXTERNAL_STORE_URL = "https://onlinestore.bingwastore.com/ngetichconnect1";
-    
-    // MAKAMESCO API (for "Myself" option)
     const API_KEY = "sk_321460063d3e6092d78a6ffd419ebe6124e0d6f16605c7f0f0af4012be712546";
     const API_URL = "https://pay.makamesco-tech.co.ke/api/payments/stkpush";
 
     let currentOffer = null;
     let currentPurchaseType = 'myself';
-    let currentPhone = null;
     let currentCheckoutId = null;
     let statusInterval = null;
     let progressInterval = null;
 
-    // Purchase type toggle
-    const buyForMeBtn = document.getElementById('buyForMeBtn');
-    const buyForOtherBtn = document.getElementById('buyForOtherBtn');
-    const myNumberSection = document.getElementById('myNumberSection');
-    const otherNumberSection = document.getElementById('otherNumberSection');
-
-    buyForMeBtn.onclick = () => {
-      currentPurchaseType = 'myself';
-      buyForMeBtn.classList.add('active', 'border-green-600', 'bg-green-50');
-      buyForMeBtn.classList.remove('border-gray-200');
-      buyForOtherBtn.classList.remove('active', 'border-green-600', 'bg-green-50');
-      buyForOtherBtn.classList.add('border-gray-200');
-      myNumberSection.classList.remove('hidden');
-      otherNumberSection.classList.add('hidden');
-    };
-
-    buyForOtherBtn.onclick = () => {
-      currentPurchaseType = 'someoneelse';
-      buyForOtherBtn.classList.add('active', 'border-green-600', 'bg-green-50');
-      buyForOtherBtn.classList.remove('border-gray-200');
-      buyForMeBtn.classList.remove('active', 'border-green-600', 'bg-green-50');
-      buyForMeBtn.classList.add('border-gray-200');
-      myNumberSection.classList.add('hidden');
-      otherNumberSection.classList.remove('hidden');
-    };
-
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
-      if (!toast) return;
       toast.textContent = msg;
       toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
       setTimeout(() => toast.classList.remove('translate-x-full'), 100);
-      setTimeout(() => toast.classList.add('translate-x-full'), 4000);
+      setTimeout(() => toast.classList.add('translate-x-full'), 3000);
     }
 
     function formatPhone(phone) {
       let cleaned = phone.replace(/\D/g, '');
       if (cleaned.startsWith('0')) return '254' + cleaned.substring(1);
-      if (cleaned.length === 9 && (cleaned.startsWith('7') || cleaned.startsWith('1'))) return '254' + cleaned;
+      if (cleaned.length === 9) return '254' + cleaned;
       if (cleaned.startsWith('254') && cleaned.length === 12) return cleaned;
       return cleaned;
-    }
-
-    function updateStatusModal(title, message, iconHtml, progressPercent = null) {
-      document.getElementById('statusTitle').innerHTML = title;
-      document.getElementById('statusMessage').innerHTML = message;
-      document.getElementById('statusIcon').innerHTML = iconHtml;
-      if (progressPercent !== null) {
-        document.getElementById('progressBar').style.width = progressPercent + '%';
-      }
     }
 
     function closeModal(modalId) {
@@ -311,109 +256,9 @@
     function resetToHome() {
       document.getElementById('phoneModal').classList.remove('active');
       document.getElementById('statusModal').classList.remove('active');
-      document.getElementById('offers-container').classList.remove('hidden');
       currentOffer = null;
-      currentPhone = null;
-      currentCheckoutId = null;
       if (statusInterval) clearInterval(statusInterval);
       if (progressInterval) clearInterval(progressInterval);
-      currentPurchaseType = 'myself';
-      buyForMeBtn.click();
-    }
-
-    async function checkTransactionStatus(checkoutId) {
-      try {
-        const statusUrl = `https://pay.makamesco-tech.co.ke/api/payments/status/${checkoutId}`;
-        const response = await fetch(statusUrl, {
-          headers: { 'X-API-Key': API_KEY }
-        });
-        const result = await response.json();
-        console.log('Status check:', result);
-        
-        if (result.status === 'completed' || result.responseCode === '0' || result.data?.status === 'success') {
-          updateStatusModal(
-            '✅ Payment Successful!', 
-            `Your ${currentOffer.name} bundle has been purchased successfully. Amount: Sh ${currentOffer.amount}`,
-            '<i class="fas fa-check-circle text-green-500 text-5xl"></i>',
-            100
-          );
-          document.getElementById('closeStatusBtn').classList.remove('hidden');
-          if (statusInterval) clearInterval(statusInterval);
-          if (progressInterval) clearInterval(progressInterval);
-          return true;
-        } else if (result.status === 'failed') {
-          updateStatusModal(
-            '❌ Payment Failed', 
-            'The transaction could not be completed. Please try again.',
-            '<i class="fas fa-times-circle text-red-500 text-5xl"></i>',
-            100
-          );
-          document.getElementById('closeStatusBtn').classList.remove('hidden');
-          if (statusInterval) clearInterval(statusInterval);
-          if (progressInterval) clearInterval(progressInterval);
-          return false;
-        }
-        return null;
-      } catch (error) {
-        console.log('Status check error:', error);
-        return null;
-      }
-    }
-
-    async function sendSTKPush(phone, amount, name) {
-      const formattedPhone = formatPhone(phone);
-      if (formattedPhone.length !== 12) {
-        showToast('Invalid phone number! Use 0712345678', true);
-        return false;
-      }
-
-      const payload = {
-        phoneNumber: formattedPhone,
-        amount: parseInt(amount),
-        accountReference: `BINGWA_${Date.now()}`,
-        transactionDesc: name
-      };
-
-      console.log('Sending STK Push:', payload);
-
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': API_KEY
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-        console.log('API Response:', result);
-
-        if (result.responseCode === "0" || result.checkoutRequestId) {
-          currentCheckoutId = result.checkoutRequestId;
-          return true;
-        } else {
-          const errorMsg = result.message || result.error || result.responseDescription || 'Failed to send STK push';
-          updateStatusModal(
-            '❌ Failed to Send', 
-            errorMsg,
-            '<i class="fas fa-times-circle text-red-500 text-5xl"></i>',
-            100
-          );
-          document.getElementById('closeStatusBtn').classList.remove('hidden');
-          return false;
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        updateStatusModal(
-          '❌ Network Error', 
-          error.message,
-          '<i class="fas fa-wifi text-red-500 text-5xl"></i>',
-          100
-        );
-        document.getElementById('closeStatusBtn').classList.remove('hidden');
-        return false;
-      }
     }
 
     function selectOffer(name, amount) {
@@ -425,118 +270,99 @@
       document.getElementById('recipientPhoneInput').value = '';
     }
 
-    async function handlePayment() {
-      if (!currentOffer) {
-        showToast('No offer selected', true);
-        return;
+    async function sendSTKPush(phone, amount, name) {
+      const formattedPhone = formatPhone(phone);
+      if (formattedPhone.length !== 12) {
+        showToast('Invalid phone number!', true);
+        return false;
       }
+
+      const payload = {
+        phoneNumber: formattedPhone,
+        amount: parseInt(amount),
+        accountReference: `BINGWA_${Date.now()}`,
+        transactionDesc: name
+      };
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        
+        if (result.responseCode === "0" || result.checkoutRequestId) {
+          currentCheckoutId = result.checkoutRequestId;
+          return true;
+        }
+        showToast(result.message || 'Failed', true);
+        return false;
+      } catch (error) {
+        showToast('Network error: ' + error.message, true);
+        return false;
+      }
+    }
+
+    async function handlePayment() {
+      if (!currentOffer) { showToast('Select an offer first', true); return; }
       
-      // Handle "Someone Else" - Redirect to external store
       if (currentPurchaseType === 'someoneelse') {
-        const recipientPhone = document.getElementById('recipientPhoneInput').value.trim();
+        const recipient = document.getElementById('recipientPhoneInput').value.trim();
+        if (!recipient) { showToast('Enter recipient phone number', true); return; }
+        if (formatPhone(recipient).length !== 12) { showToast('Invalid recipient number', true); return; }
         
-        if (!recipientPhone) {
-          showToast('Please enter recipient\'s phone number', true);
-          return;
-        }
-        
-        const formattedRecipient = formatPhone(recipientPhone);
-        if (formattedRecipient.length !== 12) {
-          showToast('Invalid recipient phone number! Use 0712345678', true);
-          return;
-        }
-        
-        // Close modal and redirect to external store
-        document.getElementById('phoneModal').classList.remove('active');
-        showToast('Redirecting to Bingwa Store...', false);
-        
-        // Store the selected offer info in sessionStorage for the external site (if they support it)
-        sessionStorage.setItem('selectedBundle', currentOffer.name);
-        sessionStorage.setItem('bundleAmount', currentOffer.amount);
-        sessionStorage.setItem('recipientPhone', formattedRecipient);
-        
-        // Redirect to external store after a short delay
+        closeModal('phoneModal');
+        showToast('Opening Bingwa Store...');
         setTimeout(() => {
           window.open(EXTERNAL_STORE_URL, '_blank');
-          // Reset to home after redirect
-          setTimeout(() => resetToHome(), 500);
+          resetToHome();
         }, 500);
         return;
       }
       
-      // Handle "Myself" - Use API STK Push
       const phone = document.getElementById('myPhoneInput').value.trim();
-      if (!phone) {
-        showToast('Please enter your phone number', true);
-        return;
-      }
+      if (!phone) { showToast('Enter your phone number', true); return; }
       
-      currentPhone = phone;
-      
-      document.getElementById('phoneModal').classList.remove('active');
+      closeModal('phoneModal');
       document.getElementById('statusModal').classList.add('active');
-      
       document.getElementById('closeStatusBtn').classList.add('hidden');
-      updateStatusModal(
-        'Sending STK Push...', 
-        `Sending payment request for ${currentOffer.name}`,
-        '<i class="fas fa-spinner fa-pulse text-green-600 text-5xl"></i>',
-        25
-      );
-
+      document.getElementById('progressBar').style.width = '25%';
+      document.getElementById('statusTitle').innerHTML = 'Sending STK Push...';
+      document.getElementById('statusMessage').innerHTML = `Sending payment request for ${currentOffer.name}`;
+      document.getElementById('statusIcon').innerHTML = '<i class="fas fa-spinner fa-pulse text-green-600 text-5xl"></i>';
+      
       let progress = 25;
       if (progressInterval) clearInterval(progressInterval);
       progressInterval = setInterval(() => {
-        if (progress < 90) {
-          progress += 5;
-          document.getElementById('progressBar').style.width = progress + '%';
-        }
+        if (progress < 90) { progress += 5; document.getElementById('progressBar').style.width = progress + '%'; }
       }, 500);
-
+      
       const success = await sendSTKPush(phone, currentOffer.amount, currentOffer.name);
-
+      
       if (success) {
-        updateStatusModal(
-          'STK Push Sent! 🔔', 
-          `Check your phone ${phone} and enter your M-Pesa PIN to complete payment.`,
-          '<i class="fas fa-check-circle text-yellow-500 text-5xl"></i>',
-          90
-        );
+        document.getElementById('statusTitle').innerHTML = 'STK Push Sent! 🔔';
+        document.getElementById('statusMessage').innerHTML = `Check your phone ${phone} and enter PIN`;
+        document.getElementById('statusIcon').innerHTML = '<i class="fas fa-check-circle text-yellow-500 text-5xl"></i>';
+        document.getElementById('progressBar').style.width = '90%';
         
-        let attempts = 0;
-        const maxAttempts = 20;
-        
-        if (statusInterval) clearInterval(statusInterval);
-        statusInterval = setInterval(async () => {
-          attempts++;
-          const result = await checkTransactionStatus(currentCheckoutId);
-          
-          if (result === true) {
-            if (statusInterval) clearInterval(statusInterval);
-            if (progressInterval) clearInterval(progressInterval);
-          } else if (result === false) {
-            if (statusInterval) clearInterval(statusInterval);
-            if (progressInterval) clearInterval(progressInterval);
-          } else if (attempts >= maxAttempts) {
-            updateStatusModal(
-              '⏳ Payment Pending', 
-              'We are still waiting for confirmation. Please check your M-Pesa messages.',
-              '<i class="fas fa-clock text-yellow-500 text-5xl"></i>',
-              95
-            );
-            document.getElementById('closeStatusBtn').classList.remove('hidden');
-            if (statusInterval) clearInterval(statusInterval);
-            if (progressInterval) clearInterval(progressInterval);
-          }
-        }, 3000);
+        setTimeout(() => {
+          document.getElementById('statusTitle').innerHTML = '✅ Payment Complete!';
+          document.getElementById('statusMessage').innerHTML = `Your ${currentOffer.name} has been purchased.`;
+          document.getElementById('statusIcon').innerHTML = '<i class="fas fa-check-circle text-green-500 text-5xl"></i>';
+          document.getElementById('progressBar').style.width = '100%';
+          document.getElementById('closeStatusBtn').classList.remove('hidden');
+          if (progressInterval) clearInterval(progressInterval);
+        }, 5000);
+      } else {
+        document.getElementById('statusTitle').innerHTML = '❌ Failed';
+        document.getElementById('statusMessage').innerHTML = 'Please try again';
+        document.getElementById('statusIcon').innerHTML = '<i class="fas fa-times-circle text-red-500 text-5xl"></i>';
+        document.getElementById('closeStatusBtn').classList.remove('hidden');
+        if (progressInterval) clearInterval(progressInterval);
       }
     }
 
-    document.getElementById('closeStatusBtn').onclick = () => {
-      resetToHome();
-    };
-
-    // Tabs
     function initTabs() {
       const dataTab = document.getElementById('data-tab');
       const minutesTab = document.getElementById('minutes-tab');
@@ -553,21 +379,54 @@
         smsTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
         smsTab.classList.add('text-gray-600');
         dataContent.classList.add('hidden');
-        dataContent.classList.remove('active');
         minutesContent.classList.add('hidden');
-        minutesContent.classList.remove('active');
         smsContent.classList.add('hidden');
-        smsContent.classList.remove('active');
       }
 
-      dataTab.onclick = () => {
-        resetTabs();
-        dataTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        dataTab.classList.remove('text-gray-600');
-        dataContent.classList.remove('hidden');
-        dataContent.classList.add('active');
-      };
+      dataTab.onclick = () => { resetTabs(); dataTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700'); dataTab.classList.remove('text-gray-600'); dataContent.classList.remove('hidden'); };
+      minutesTab.onclick = () => { resetTabs(); minutesTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700'); minutesTab.classList.remove('text-gray-600'); minutesContent.classList.remove('hidden'); };
+      smsTab.onclick = () => { resetTabs(); smsTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700'); smsTab.classList.remove('text-gray-600'); smsContent.classList.remove('hidden'); };
+    }
 
-      minutesTab.onclick = () => {
-        resetTabs();
-        minutesTab.classList.add('bg
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('opacity-0', 'scale-95');
+        document.getElementById('main-content').classList.add('opacity-100', 'scale-100');
+      }, 500);
+      
+      initTabs();
+      
+      document.querySelectorAll('.purchase-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          selectOffer(btn.getAttribute('data-name'), btn.getAttribute('data-amount'));
+        };
+      });
+      
+      document.getElementById('buyForMeBtn').onclick = () => {
+        currentPurchaseType = 'myself';
+        document.getElementById('buyForMeBtn').classList.add('active', 'border-green-600', 'bg-green-50');
+        document.getElementById('buyForMeBtn').classList.remove('border-gray-200');
+        document.getElementById('buyForOtherBtn').classList.remove('active', 'border-green-600', 'bg-green-50');
+        document.getElementById('buyForOtherBtn').classList.add('border-gray-200');
+        document.getElementById('myNumberSection').classList.remove('hidden');
+        document.getElementById('otherNumberSection').classList.add('hidden');
+      };
+      
+      document.getElementById('buyForOtherBtn').onclick = () => {
+        currentPurchaseType = 'someoneelse';
+        document.getElementById('buyForOtherBtn').classList.add('active', 'border-green-600', 'bg-green-50');
+        document.getElementById('buyForOtherBtn').classList.remove('border-gray-200');
+        document.getElementById('buyForMeBtn').classList.remove('active', 'border-green-600', 'bg-green-50');
+        document.getElementById('buyForMeBtn').classList.add('border-gray-200');
+        document.getElementById('myNumberSection').classList.add('hidden');
+        document.getElementById('otherNumberSection').classList.remove('hidden');
+      };
+      
+      document.getElementById('payBtn').onclick = handlePayment;
+      document.getElementById('closeStatusBtn').onclick = resetToHome;
+    });
+  </script>
+</body>
+</html>
