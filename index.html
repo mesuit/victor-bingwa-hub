@@ -25,7 +25,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -38,18 +38,13 @@
       background: white;
       border-radius: 20px;
       width: 90%;
-      max-width: 500px;
+      max-width: 400px;
       height: auto;
-      max-height: 600px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       animation: modalSlideIn 0.3s ease-out;
-    }
-    .modal-content.iframe-modal {
-      height: 85%;
-      max-height: 700px;
     }
     @keyframes modalSlideIn {
       from {
@@ -98,14 +93,6 @@
       padding: 20px;
       background: #f5f5f5;
     }
-    .modal-body.no-padding {
-      padding: 0;
-    }
-    .payment-iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
     .modal-footer {
       padding: 12px;
       background: white;
@@ -114,17 +101,14 @@
       font-size: 0.8rem;
       color: #666;
     }
-    @media (max-width: 640px) {
-      .modal-content.iframe-modal {
-        width: 95%;
-        height: 90%;
-      }
-    }
     .offer-card {
       transition: all 0.3s ease;
     }
     .offer-card:hover {
       transform: translateY(-2px);
+    }
+    button {
+      cursor: pointer;
     }
   </style>
 </head>
@@ -303,14 +287,14 @@
 
   <!-- Phone Number Modal -->
   <div id="phone-modal" class="payment-modal">
-    <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-content">
       <div class="modal-header">
-        <h3><i class="fas fa-mobile-alt mr-2"></i> Enter Phone Number</h3>
+        <h3><i class="fas fa-mobile-alt mr-2"></i> Enter M-Pesa Number</h3>
         <button class="close-modal" onclick="closePhoneModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div id="selected-offer-info" class="bg-green-50 p-3 rounded-lg mb-4 border border-green-200"></div>
-        <label class="block text-gray-700 mb-2 font-medium">📱 M-Pesa Phone Number</label>
+        <label class="block text-gray-700 mb-2 font-medium">📱 Phone Number</label>
         <input type="tel" id="modal-phone" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-700 text-lg">
         <p class="text-xs text-gray-500 mt-2">You'll receive an STK push. Enter PIN to complete payment.</p>
         <button id="modal-pay-btn" class="w-full mt-4 bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
@@ -320,27 +304,12 @@
     </div>
   </div>
 
-  <!-- Payment Iframe Modal -->
-  <div id="payment-modal" class="payment-modal">
-    <div class="modal-content iframe-modal">
-      <div class="modal-header">
-        <h3><i class="fas fa-lock mr-2"></i> Complete Payment - MakameSco</h3>
-        <button class="close-modal" onclick="closePaymentModal()">&times;</button>
-      </div>
-      <div class="modal-body no-padding">
-        <iframe id="payment-iframe" class="payment-iframe" src="about:blank"></iframe>
-      </div>
-      <div class="modal-footer">
-        <i class="fas fa-shield-alt text-green-600 mr-1"></i> Enter PIN on your phone when prompted
-      </div>
-    </div>
-  </div>
-
   <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50"></div>
 
   <script>
     let selectedOffer = null;
-    let paymentCheckInterval = null;
+    let paymentWindow = null;
+    let checkInterval = null;
 
     function showNotification(msg, type = 'success') {
       const n = document.getElementById('notification');
@@ -364,7 +333,6 @@
     function selectOffer(type, name, amount) {
       selectedOffer = { type, name, amount };
       
-      // Update modal info
       const infoDiv = document.getElementById('selected-offer-info');
       const amountSpan = document.getElementById('modal-amount');
       
@@ -377,7 +345,6 @@
       }
       if (amountSpan) amountSpan.textContent = amount;
       
-      // Show phone modal
       openPhoneModal();
     }
 
@@ -393,50 +360,46 @@
       modal.classList.remove('active');
     }
 
-    function openPaymentModal(phoneNumber, amount, description) {
-      const modal = document.getElementById('payment-modal');
-      const iframe = document.getElementById('payment-iframe');
+    function openPaymentPopup(phoneNumber, amount, description) {
+      // Build the payment URL
+      const paymentUrl = `https://pay.makamesco-tech.co.ke/pay/YjsxGecgIX`;
       
-      // Build payment URL with parameters
-      const paymentUrl = `https://pay.makamesco-tech.co.ke/pay/YjsxGecgIX?phone=${encodeURIComponent(phoneNumber)}&amount=${amount}&description=${encodeURIComponent(description)}`;
+      // Open as popup window
+      const width = 450;
+      const height = 650;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
       
-      console.log('Opening payment URL:', paymentUrl);
-      iframe.src = paymentUrl;
-      modal.classList.add('active');
+      paymentWindow = window.open(paymentUrl, 'MakameScoPay', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
       
-      // Start monitoring
-      startPaymentMonitoring();
-    }
-
-    function closePaymentModal() {
-      const modal = document.getElementById('payment-modal');
-      const iframe = document.getElementById('payment-iframe');
-      modal.classList.remove('active');
-      iframe.src = 'about:blank';
-      stopPaymentMonitoring();
-    }
-
-    function startPaymentMonitoring() {
-      let attempts = 0;
-      stopPaymentMonitoring();
-      
-      paymentCheckInterval = setInterval(() => {
-        attempts++;
-        if (attempts > 60) {
-          if (paymentCheckInterval) {
-            clearInterval(paymentCheckInterval);
-            paymentCheckInterval = null;
-          }
-          showNotification('Complete payment on your phone, then close this window', 'info');
-        }
-      }, 1000);
-    }
-
-    function stopPaymentMonitoring() {
-      if (paymentCheckInterval) {
-        clearInterval(paymentCheckInterval);
-        paymentCheckInterval = null;
+      if (!paymentWindow) {
+        showNotification('Popup blocked! Please allow popups for this site', 'error');
+        return;
       }
+      
+      showNotification('Payment window opened! Complete payment on your phone', 'success');
+      
+      // Monitor when popup closes
+      if (checkInterval) clearInterval(checkInterval);
+      
+      checkInterval = setInterval(() => {
+        if (paymentWindow && paymentWindow.closed) {
+          clearInterval(checkInterval);
+          checkInterval = null;
+          paymentWindow = null;
+          showNotification('Payment window closed. Check your M-Pesa messages for confirmation.', 'info');
+          // Reset selection
+          selectedOffer = null;
+        }
+      }, 500);
+      
+      // Auto-close after 2 minutes (optional)
+      setTimeout(() => {
+        if (paymentWindow && !paymentWindow.closed) {
+          // Don't force close, just notify
+          showNotification('Still waiting for payment? Complete on your phone then close the window', 'info');
+        }
+      }, 120000);
     }
 
     // Initialize on page load
@@ -501,9 +464,9 @@
           
           closePhoneModal();
           
-          // Open payment modal with pre-filled data
+          // Open payment popup
           setTimeout(() => {
-            openPaymentModal(formatted, selectedOffer.amount, selectedOffer.name);
+            openPaymentPopup(formatted, selectedOffer.amount, selectedOffer.name);
           }, 300);
         });
       }
