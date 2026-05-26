@@ -1,42 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Victor Bingwa Sokoni - Buy Data, Minutes & SMS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Victor Bingwa Sokoni - Data & Minutes</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .offer-card { transition: all 0.2s ease; }
-    .offer-card:active { transform: scale(0.98); }
-    .modal {
+    .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+    .tab-content { transition: opacity 0.3s ease, transform 0.3s ease; }
+    .tab-content.hidden { display: none; }
+    .tab-content.active { animation: slideUp 0.5s ease-out; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .payment-modal {
       display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 1000;
       justify-content: center;
       align-items: center;
     }
-    .modal.active { display: flex; }
+    .payment-modal.active { display: flex; }
     .modal-content {
       background: white;
-      border-radius: 24px;
+      border-radius: 20px;
       width: 90%;
-      max-width: 380px;
+      max-width: 400px;
       overflow: hidden;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    @keyframes modalSlideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     .modal-header {
-      background: linear-gradient(135deg, #006400, #008f4c);
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #006400, #00a86b);
       color: white;
-      padding: 16px 20px;
     }
-    .modal-body { padding: 20px; }
+    .close-modal {
+      float: right;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
     .loading-spinner {
       display: inline-block;
       width: 18px;
@@ -47,94 +64,108 @@
       animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .btn-pay { background: linear-gradient(135deg, #006400, #008f4c); }
-    .btn-pay:active { transform: scale(0.97); }
   </style>
 </head>
-<body class="bg-gradient-to-br from-green-800 to-green-600 min-h-screen p-3">
+<body class="bg-gradient-to-br from-green-800 to-green-600 min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- Main Card -->
-  <div class="max-w-lg mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+    <div class="w-16 h-16 border-4 border-green-700 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <h2 class="text-xl font-bold text-green-700">Victor Bingwa Sokoni</h2>
+    <p class="text-gray-600 mt-2">Loading premium mobile services...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden opacity-0 scale-95 transition-all duration-500">
     
     <!-- Header -->
-    <div class="bg-gradient-to-r from-green-700 to-green-500 text-white p-5 text-center">
-      <i class="fas fa-bolt text-3xl mb-1"></i>
-      <h1 class="text-xl font-bold">VICTOR BINGWA SOKONI</h1>
-      <p class="text-sm opacity-90">Instant Data, Minutes & SMS</p>
-      <div class="mt-2 text-[10px] bg-white/20 inline-block px-2 py-0.5 rounded-full">🔒 M-Pesa STK Push</div>
-    </div>
+    <header class="bg-gradient-to-r from-green-700 to-green-500 text-white p-6 text-center">
+      <h1 class="text-2xl md:text-3xl font-bold flex items-center justify-center gap-3">
+        <i class="fas fa-bolt"></i> VICTOR BINGWA SOKONI
+      </h1>
+      <p class="mt-2 text-lg font-medium">Premium Mobile Services</p>
+      <p class="mt-1 opacity-90">Instant Data, Minutes & SMS Bundles</p>
+      <div class="mt-2 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">🔒 Secured by MakameSco Pay</div>
+    </header>
 
     <!-- Tabs -->
     <div class="flex border-b">
-      <button id="tabData" class="tab-btn flex-1 py-3 text-sm font-semibold bg-green-50 text-green-700 border-b-2 border-green-700">📱 DATA</button>
-      <button id="tabMinutes" class="tab-btn flex-1 py-3 text-sm font-semibold text-gray-500">📞 MINUTES</button>
-      <button id="tabSms" class="tab-btn flex-1 py-3 text-sm font-semibold text-gray-500">💬 SMS</button>
+      <button id="data-tab" class="tab-button flex-1 py-4 font-medium text-center bg-green-50 text-green-700 border-b-2 border-green-700">📱 DATA</button>
+      <button id="minutes-tab" class="tab-button flex-1 py-4 font-medium text-center text-gray-600 hover:text-green-700">📞 MINUTES</button>
+      <button id="sms-tab" class="tab-button flex-1 py-4 font-medium text-center text-gray-600 hover:text-green-700">💬 SMS</button>
     </div>
 
-    <div class="p-4">
-      <!-- DATA OFFERS -->
-      <div id="dataContent" class="tab-content active">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1.25GB" data-amount="55"><div class="font-bold text-green-700">1.25GB</div><div class="text-xs text-gray-500">Until midnight</div><div class="text-right text-green-700 font-bold mt-1">Sh 55</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1.5GB" data-amount="50"><div class="font-bold text-green-700">1.5GB</div><div class="text-xs text-gray-500">3 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 50</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1.2GB" data-amount="250"><div class="font-bold text-green-700">1.2GB</div><div class="text-xs text-gray-500">30 days</div><div class="text-right text-green-700 font-bold mt-1">Sh 250</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="350MB" data-amount="49"><div class="font-bold text-green-700">350MB</div><div class="text-xs text-gray-500">1 week</div><div class="text-right text-green-700 font-bold mt-1">Sh 49</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1GB (1hr)" data-amount="19"><div class="font-bold text-green-700">1GB</div><div class="text-xs text-gray-500">1 hour</div><div class="text-right text-green-700 font-bold mt-1">Sh 19</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="250MB" data-amount="20"><div class="font-bold text-green-700">250MB</div><div class="text-xs text-gray-500">24 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 20</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1GB (24h)" data-amount="99"><div class="font-bold text-green-700">1GB</div><div class="text-xs text-gray-500">24 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 99</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="2GB" data-amount="110"><div class="font-bold text-green-700">2GB</div><div class="text-xs text-gray-500">24 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 110</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
+    <div class="p-4 md:p-6">
+      <div id="offers-container">
+        <!-- DATA OFFERS -->
+        <div id="data-content" class="tab-content active">
+          <h2 class="text-xl font-bold text-green-700 mb-4">🔥 Data Bundles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.25GB</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="text-xl font-bold text-green-700">Sh 55</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.25GB" data-amount="55">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.5GB</div><div class="text-sm text-gray-600">3 hours</div></div><div class="text-xl font-bold text-green-700">Sh 50</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.5GB" data-amount="50">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.2GB</div><div class="text-sm text-gray-600">30 days</div></div><div class="text-xl font-bold text-green-700">Sh 250</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.2GB" data-amount="250">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">350MB</div><div class="text-sm text-gray-600">1 week</div></div><div class="text-xl font-bold text-green-700">Sh 49</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="350MB" data-amount="49">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1GB</div><div class="text-sm text-gray-600">1 hour</div></div><div class="text-xl font-bold text-green-700">Sh 19</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1GB (1hr)" data-amount="19">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">250MB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 20</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="250MB" data-amount="20">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 99</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1GB (24h)" data-amount="99">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">2GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 110</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="data" data-name="2GB" data-amount="110">💳 PURCHASE</button></div>
+          </div>
         </div>
-      </div>
 
-      <!-- MINUTES OFFERS -->
-      <div id="minutesContent" class="tab-content">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="45 mins" data-amount="22"><div class="font-bold text-green-700">45 mins</div><div class="text-xs text-gray-500">3 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 22</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="50 mins" data-amount="51"><div class="font-bold text-green-700">50 mins</div><div class="text-xs text-gray-500">Until midnight</div><div class="text-right text-green-700 font-bold mt-1">Sh 51</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
+        <!-- MINUTES OFFERS -->
+        <div id="minutes-content" class="tab-content hidden">
+          <h2 class="text-xl font-bold text-green-700 mb-4">🎙️ Voice Minutes</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">45 mins</div><div class="text-sm text-gray-600">3 hours</div></div><div class="text-xl font-bold text-green-700">Sh 22</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="minutes" data-name="45 mins" data-amount="22">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">50 mins</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="text-xl font-bold text-green-700">Sh 51</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="minutes" data-name="50 mins" data-amount="51">💳 PURCHASE</button></div>
+          </div>
         </div>
-      </div>
 
-      <!-- SMS OFFERS -->
-      <div id="smsContent" class="tab-content">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="200 SMS" data-amount="10"><div class="font-bold text-green-700">200 SMS</div><div class="text-xs text-gray-500">24 hours</div><div class="text-right text-green-700 font-bold mt-1">Sh 10</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="20 SMS" data-amount="5"><div class="font-bold text-green-700">20 SMS</div><div class="text-xs text-gray-500">1 day</div><div class="text-right text-green-700 font-bold mt-1">Sh 5</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1500 SMS" data-amount="101"><div class="font-bold text-green-700">1500 SMS</div><div class="text-xs text-gray-500">1 month</div><div class="text-right text-green-700 font-bold mt-1">Sh 101</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="3500 SMS" data-amount="201"><div class="font-bold text-green-700">3500 SMS</div><div class="text-xs text-gray-500">1 month</div><div class="text-right text-green-700 font-bold mt-1">Sh 201</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
-          <div class="offer-card bg-white border rounded-xl p-3 shadow-sm" data-name="1000 SMS" data-amount="30"><div class="font-bold text-green-700">1000 SMS</div><div class="text-xs text-gray-500">7 days</div><div class="text-right text-green-700 font-bold mt-1">Sh 30</div><button class="buy-btn w-full mt-2 bg-green-600 text-white py-2 rounded-lg text-sm font-medium">BUY</button></div>
+        <!-- SMS OFFERS -->
+        <div id="sms-content" class="tab-content hidden">
+          <h2 class="text-xl font-bold text-green-700 mb-4">✉️ SMS Bundles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">200 SMS</div><div class="text-sm text-gray-600">Valid 24h</div></div><div class="text-xl font-bold text-green-700">Sh 10</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="200 SMS" data-amount="10">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">20 SMS</div><div class="text-sm text-gray-600">Valid 1 day</div></div><div class="text-xl font-bold text-green-700">Sh 5</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="20 SMS" data-amount="5">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="text-xl font-bold text-green-700">Sh 101</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="1500 SMS" data-amount="101">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">3500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="text-xl font-bold text-green-700">Sh 201</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="3500 SMS" data-amount="201">💳 PURCHASE</button></div>
+            <div class="offer-card bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all"><div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1000 SMS</div><div class="text-sm text-gray-600">Valid 7 days</div></div><div class="text-xl font-bold text-green-700">Sh 30</div></div><button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="1000 SMS" data-amount="30">💳 PURCHASE</button></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-gray-100 p-3 text-center text-xs text-gray-600">
-      <p>⚡ Victor Ngetich | 📞 0743272507</p>
-    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-100 p-4 text-center text-gray-600">
+      <p class="font-bold text-green-800">⚡ Powered by Victor Ngetich | 📧 victorngetich376@gmail.com | 📞 0743272507</p>
+      <p class="mt-2 text-sm">Stay connected - Bingwa Sokoni got you 24/7!</p>
+    </footer>
   </div>
 
   <!-- Phone Modal -->
-  <div id="phoneModal" class="modal">
+  <div id="phoneModal" class="payment-modal">
     <div class="modal-content">
       <div class="modal-header flex justify-between items-center">
         <span class="font-bold"><i class="fas fa-mobile-alt mr-2"></i>Enter M-Pesa Number</span>
-        <button onclick="closeModal()" class="text-white text-2xl leading-none">&times;</button>
+        <button onclick="closeModal()" class="close-modal">&times;</button>
       </div>
-      <div class="modal-body">
-        <div id="offerDetails" class="bg-green-50 p-3 rounded-xl mb-4 text-center">
+      <div class="p-5">
+        <div id="offerDetails" class="bg-green-50 p-3 rounded-lg mb-4 text-center">
           <div id="offerName" class="font-bold text-green-700"></div>
           <div id="offerAmount" class="text-2xl font-bold text-green-700"></div>
         </div>
-        <input type="tel" id="phoneInput" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-xl text-center text-lg" autocomplete="off">
-        <p class="text-xs text-gray-500 text-center mt-2">You'll receive an M-Pesa prompt. Enter PIN to pay.</p>
-        <button id="payBtn" class="btn-pay w-full mt-4 text-white py-3 rounded-xl font-bold text-lg transition-all">Pay Now</button>
+        <input type="tel" id="phoneInput" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg">
+        <p class="text-xs text-gray-500 text-center mt-2">You'll receive an STK push. Enter PIN to pay.</p>
+        <button id="payBtn" class="w-full mt-4 bg-green-700 text-white py-3 rounded-lg font-bold text-lg">Pay Now</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm shadow-xl z-50 hidden"></div>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50"></div>
 
   <script>
-    // YOUR MAKAMESCO API - Direct access (no CORS issues since it's your API)
+    // MAKAMESCO API - CORRECT FIELD NAMES
     const API_KEY = "sk_321460063d3e6092d78a6ffd419ebe6124e0d6f16605c7f0f0af4012be712546";
     const API_URL = "https://pay.makamesco-tech.co.ke/api/payments/stkpush";
 
@@ -143,9 +174,9 @@
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
-      toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full text-sm shadow-xl z-50 ${isError ? 'bg-red-600' : 'bg-green-600'} text-white`;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 3500);
+      toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
+      setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+      setTimeout(() => toast.classList.add('translate-x-full'), 3000);
     }
 
     function formatPhone(phone) {
@@ -163,11 +194,12 @@
         return false;
       }
 
+      // CORRECT FIELD NAMES according to MakameSco API error message
       const payload = {
         phoneNumber: formattedPhone,
         amount: parseInt(amount),
-        reference: `BINGWA_${Date.now()}`,
-        description: name
+        accountReference: `BINGWA_${Date.now()}`,
+        transactionDesc: name
       };
 
       console.log('Sending STK Push:', payload);
@@ -185,9 +217,8 @@
         const result = await response.json();
         console.log('API Response:', result);
 
-        // Check if STK push was sent successfully
         if (result.success === true || result.CheckoutRequestID || result.data?.CheckoutRequestID) {
-          showToast(`✅ STK Push sent! Check your phone (${formattedPhone})`);
+          showToast(`✅ STK Push sent! Check your phone`);
           return true;
         } else {
           const errorMsg = result.message || result.error || 'Failed to send STK push';
@@ -195,7 +226,7 @@
           return false;
         }
       } catch (error) {
-        console.error('Network Error:', error);
+        console.error('Error:', error);
         showToast(`❌ Network error: ${error.message}`, true);
         return false;
       }
@@ -207,7 +238,6 @@
       document.getElementById('offerAmount').innerHTML = `Sh ${amount}`;
       document.getElementById('phoneModal').classList.add('active');
       document.getElementById('phoneInput').value = '';
-      setTimeout(() => document.getElementById('phoneInput').focus(), 100);
     }
 
     function closeModal() {
@@ -243,82 +273,86 @@
       payBtn.style.opacity = '1';
     }
 
-    // TAB SWITCHING - Fixed!
+    // Tabs
     function initTabs() {
-      const tabData = document.getElementById('tabData');
-      const tabMinutes = document.getElementById('tabMinutes');
-      const tabSms = document.getElementById('tabSms');
-      
-      const contentData = document.getElementById('dataContent');
-      const contentMinutes = document.getElementById('minutesContent');
-      const contentSms = document.getElementById('smsContent');
+      const dataTab = document.getElementById('data-tab');
+      const minutesTab = document.getElementById('minutes-tab');
+      const smsTab = document.getElementById('sms-tab');
+      const dataContent = document.getElementById('data-content');
+      const minutesContent = document.getElementById('minutes-content');
+      const smsContent = document.getElementById('sms-content');
 
-      // Data Tab
-      tabData.onclick = () => {
-        // Update tab styles
-        tabData.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabData.classList.remove('text-gray-500');
-        tabMinutes.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabMinutes.classList.add('text-gray-500');
-        tabSms.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabSms.classList.add('text-gray-500');
-        
-        // Show only data content
-        contentData.classList.add('active');
-        contentMinutes.classList.remove('active');
-        contentSms.classList.remove('active');
+      dataTab.onclick = () => {
+        dataTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        dataTab.classList.remove('text-gray-600');
+        minutesTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        minutesTab.classList.add('text-gray-600');
+        smsTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        smsTab.classList.add('text-gray-600');
+        dataContent.classList.add('active');
+        dataContent.classList.remove('hidden');
+        minutesContent.classList.add('hidden');
+        minutesContent.classList.remove('active');
+        smsContent.classList.add('hidden');
+        smsContent.classList.remove('active');
       };
 
-      // Minutes Tab
-      tabMinutes.onclick = () => {
-        tabMinutes.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabMinutes.classList.remove('text-gray-500');
-        tabData.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabData.classList.add('text-gray-500');
-        tabSms.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabSms.classList.add('text-gray-500');
-        
-        contentMinutes.classList.add('active');
-        contentData.classList.remove('active');
-        contentSms.classList.remove('active');
+      minutesTab.onclick = () => {
+        minutesTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        minutesTab.classList.remove('text-gray-600');
+        dataTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        dataTab.classList.add('text-gray-600');
+        smsTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        smsTab.classList.add('text-gray-600');
+        minutesContent.classList.add('active');
+        minutesContent.classList.remove('hidden');
+        dataContent.classList.add('hidden');
+        dataContent.classList.remove('active');
+        smsContent.classList.add('hidden');
+        smsContent.classList.remove('active');
       };
 
-      // SMS Tab
-      tabSms.onclick = () => {
-        tabSms.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabSms.classList.remove('text-gray-500');
-        tabData.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabData.classList.add('text-gray-500');
-        tabMinutes.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
-        tabMinutes.classList.add('text-gray-500');
-        
-        contentSms.classList.add('active');
-        contentData.classList.remove('active');
-        contentMinutes.classList.remove('active');
+      smsTab.onclick = () => {
+        smsTab.classList.add('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        smsTab.classList.remove('text-gray-600');
+        dataTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        dataTab.classList.add('text-gray-600');
+        minutesTab.classList.remove('bg-green-50', 'text-green-700', 'border-b-2', 'border-green-700');
+        minutesTab.classList.add('text-gray-600');
+        smsContent.classList.add('active');
+        smsContent.classList.remove('hidden');
+        dataContent.classList.add('hidden');
+        dataContent.classList.remove('active');
+        minutesContent.classList.add('hidden');
+        minutesContent.classList.remove('active');
       };
     }
 
     // Attach buy buttons
     function attachBuyButtons() {
-      document.querySelectorAll('.buy-btn').forEach(btn => {
+      document.querySelectorAll('.purchase-btn').forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
-          const card = btn.closest('.offer-card');
-          const name = card.getAttribute('data-name');
-          const amount = card.getAttribute('data-amount');
+          const name = btn.getAttribute('data-name');
+          const amount = btn.getAttribute('data-amount');
           selectOffer(name, amount);
         };
       });
     }
 
-    // Initialize everything
+    function finishLoading() {
+      document.getElementById('loading-screen').classList.add('hidden');
+      const main = document.getElementById('main-content');
+      main.classList.remove('opacity-0', 'scale-95');
+      main.classList.add('opacity-100', 'scale-100');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(finishLoading, 500);
       initTabs();
       attachBuyButtons();
       document.getElementById('payBtn').onclick = handlePayment;
-      document.getElementById('phoneInput').onkeypress = (e) => { 
-        if (e.key === 'Enter') handlePayment(); 
-      };
+      document.getElementById('phoneInput').onkeypress = (e) => { if (e.key === 'Enter') handlePayment(); };
     });
   </script>
 </body>
