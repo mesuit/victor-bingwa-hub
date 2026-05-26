@@ -165,7 +165,7 @@
   <div id="toast" class="fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50"></div>
 
   <script>
-    // MAKAMESCO API - CORRECT FIELD NAMES
+    // MAKAMESCO API
     const API_KEY = "sk_321460063d3e6092d78a6ffd419ebe6124e0d6f16605c7f0f0af4012be712546";
     const API_URL = "https://pay.makamesco-tech.co.ke/api/payments/stkpush";
 
@@ -176,7 +176,7 @@
       toast.textContent = msg;
       toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${isError ? 'bg-red-500' : 'bg-green-500'}`;
       setTimeout(() => toast.classList.remove('translate-x-full'), 100);
-      setTimeout(() => toast.classList.add('translate-x-full'), 3000);
+      setTimeout(() => toast.classList.add('translate-x-full'), 4000);
     }
 
     function formatPhone(phone) {
@@ -194,7 +194,6 @@
         return false;
       }
 
-      // CORRECT FIELD NAMES according to MakameSco API error message
       const payload = {
         phoneNumber: formattedPhone,
         amount: parseInt(amount),
@@ -217,11 +216,13 @@
         const result = await response.json();
         console.log('API Response:', result);
 
-        if (result.success === true || result.CheckoutRequestID || result.data?.CheckoutRequestID) {
-          showToast(`✅ STK Push sent! Check your phone`);
+        // FIXED: Check for MakameSco's actual success response
+        // When successful, they return: { checkoutRequestId: "...", responseCode: "0", responseDescription: "Success..." }
+        if (result.responseCode === "0" || result.checkoutRequestId || result.success === true) {
+          showToast(`✅ STK Push sent! Check your phone for PIN prompt`);
           return true;
         } else {
-          const errorMsg = result.message || result.error || 'Failed to send STK push';
+          const errorMsg = result.message || result.error || result.responseDescription || 'Failed to send STK push';
           showToast(`❌ ${errorMsg}`, true);
           return false;
         }
