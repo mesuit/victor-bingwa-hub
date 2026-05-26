@@ -25,10 +25,11 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(5px);
     }
     .payment-modal.active {
       display: flex;
@@ -38,7 +39,7 @@
       border-radius: 20px;
       width: 90%;
       max-width: 500px;
-      height: 80%;
+      height: 85%;
       max-height: 700px;
       display: flex;
       flex-direction: column;
@@ -67,7 +68,7 @@
     }
     .modal-header h3 {
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
     }
     .close-modal {
@@ -99,11 +100,11 @@
       border: none;
     }
     .modal-footer {
-      padding: 15px;
+      padding: 12px;
       background: white;
       border-top: 1px solid #e0e0e0;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #666;
     }
     @media (max-width: 640px) {
@@ -149,37 +150,37 @@
         <div id="data-content" class="tab-content active">
           <h2 class="text-xl font-bold text-green-700 mb-4">🔥 Data Bundles</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '1.25GB', 55)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.25GB</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="text-xl font-bold text-green-700">Sh 55</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="55" data-name="1.25GB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '1.5GB', 50)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.5GB</div><div class="text-sm text-gray-600">3 hours</div></div><div class="text-xl font-bold text-green-700">Sh 50</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="50" data-name="1.5GB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '1.2GB', 250)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1.2GB</div><div class="text-sm text-gray-600">30 days</div></div><div class="text-xl font-bold text-green-700">Sh 250</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="250" data-name="1.2GB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '350MB', 49)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">350MB</div><div class="text-sm text-gray-600">1 week</div></div><div class="text-xl font-bold text-green-700">Sh 49</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="49" data-name="350MB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '1GB', 19)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1GB</div><div class="text-sm text-gray-600">1 hour</div></div><div class="text-xl font-bold text-green-700">Sh 19</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="19" data-name="1GB (1 hour)" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '250MB', 20)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">250MB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 20</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="20" data-name="250MB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '1GB', 99)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 99</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="99" data-name="1GB (24h)" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('data', '2GB', 110)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">2GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="text-xl font-bold text-green-700">Sh 110</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="110" data-name="2GB" data-type="data">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
           </div>
         </div>
@@ -188,13 +189,13 @@
         <div id="minutes-content" class="tab-content hidden">
           <h2 class="text-xl font-bold text-green-700 mb-4">🎙️ Voice Minutes</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('minutes', '45 mins', 22)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">45 mins</div><div class="text-sm text-gray-600">3 hours</div></div><div class="text-xl font-bold text-green-700">Sh 22</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="22" data-name="45 mins" data-type="minutes">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('minutes', '50 mins', 51)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">50 mins</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="text-xl font-bold text-green-700">Sh 51</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="51" data-name="50 mins" data-type="minutes">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
           </div>
         </div>
@@ -203,42 +204,27 @@
         <div id="sms-content" class="tab-content hidden">
           <h2 class="text-xl font-bold text-green-700 mb-4">✉️ SMS Bundles</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('sms', '200 SMS', 10)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">200 SMS</div><div class="text-sm text-gray-600">Valid 24h</div></div><div class="text-xl font-bold text-green-700">Sh 10</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="10" data-name="200 SMS" data-type="sms">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('sms', '20 SMS', 5)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">20 SMS</div><div class="text-sm text-gray-600">Valid 1 day</div></div><div class="text-xl font-bold text-green-700">Sh 5</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="5" data-name="20 SMS" data-type="sms">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('sms', '1500 SMS', 101)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="text-xl font-bold text-green-700">Sh 101</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="101" data-name="1500 SMS" data-type="sms">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('sms', '3500 SMS', 201)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">3500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="text-xl font-bold text-green-700">Sh 201</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="201" data-name="3500 SMS" data-type="sms">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
-            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onclick="selectOffer('sms', '1000 SMS', 30)">
               <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-green-700">1000 SMS</div><div class="text-sm text-gray-600">Valid 7 days</div></div><div class="text-xl font-bold text-green-700">Sh 30</div></div>
-              <button class="purchase-btn w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors" data-amount="30" data-name="1000 SMS" data-type="sms">💳 PURCHASE</button>
+              <div class="w-full mt-3 bg-green-700 hover:bg-green-800 text-white py-2 rounded-lg font-medium transition-colors text-center">💳 PURCHASE</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Phone Number Input Section -->
-      <div id="phone-input-section" class="mt-6 p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-xl hidden">
-        <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2"><i class="fas fa-mobile-alt"></i> Complete Your Purchase</h3>
-        <div class="mb-6">
-          <div id="selected-offer" class="bg-green-50 p-4 rounded-lg mb-4 border border-green-200"></div>
-          <label class="block text-gray-700 mb-2 font-medium" for="phone">📱 Enter M-Pesa Phone Number</label>
-          <input type="tel" id="phone" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-700">
-          <p class="text-xs text-gray-500 mt-2">✅ You'll receive an STK push. Enter your PIN to complete payment.</p>
-        </div>
-        <div class="flex gap-3">
-          <button id="confirm-purchase" class="flex-1 bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"><i class="fas fa-credit-card"></i> Pay Now</button>
-          <button id="cancel-purchase" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"><i class="fas fa-times"></i> Cancel</button>
         </div>
       </div>
     </div>
@@ -256,18 +242,37 @@
     </footer>
   </div>
 
-  <!-- Payment Modal (Popup Window) -->
+  <!-- Phone Number Modal (First popup) -->
+  <div id="phone-modal" class="payment-modal">
+    <div class="modal-content" style="max-width: 400px; height: auto; max-height: 500px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-mobile-alt mr-2"></i> Enter Phone Number</h3>
+        <button class="close-modal" onclick="closePhoneModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <div id="selected-offer-info" class="bg-green-50 p-3 rounded-lg mb-4 border border-green-200"></div>
+        <label class="block text-gray-700 mb-2 font-medium">📱 M-Pesa Phone Number</label>
+        <input type="tel" id="modal-phone" placeholder="0712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-700 text-lg">
+        <p class="text-xs text-gray-500 mt-2">You'll receive an STK push. Enter PIN to complete payment.</p>
+        <button id="modal-pay-btn" class="w-full mt-4 bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+          <i class="fas fa-credit-card"></i> Pay Sh <span id="modal-amount">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal (Iframe) -->
   <div id="payment-modal" class="payment-modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3><i class="fas fa-lock mr-2"></i> Secure Payment - MakameSco</h3>
+        <h3><i class="fas fa-lock mr-2"></i> Complete Payment - MakameSco</h3>
         <button class="close-modal" onclick="closePaymentModal()">&times;</button>
       </div>
       <div class="modal-body">
         <iframe id="payment-iframe" class="payment-iframe" src="about:blank"></iframe>
       </div>
       <div class="modal-footer">
-        <i class="fas fa-shield-alt text-green-600 mr-1"></i> Secured by MakameSco Pay | Complete payment on your phone
+        <i class="fas fa-shield-alt text-green-600 mr-1"></i> Enter PIN on your phone when prompted
       </div>
     </div>
   </div>
@@ -275,44 +280,127 @@
   <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50"></div>
 
   <script>
-    (function() {
-      // YOUR WORKING PAYMENT LINK
-      const PAYMENT_LINK = "https://pay.makamesco-tech.co.ke/pay/YjsxGecgIX";
+    let selectedOffer = null;
+    let paymentCheckInterval = null;
+
+    function showNotification(msg, type = 'success') {
+      const n = document.getElementById('notification');
+      if (!n) return;
+      n.textContent = msg;
+      n.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${
+        type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'
+      }`;
+      setTimeout(() => n.classList.remove('translate-x-full'), 100);
+      setTimeout(() => n.classList.add('translate-x-full'), 4000);
+    }
+
+    function formatPhoneNumber(phone) {
+      let cleaned = phone.replace(/\D/g, '');
+      if (cleaned.startsWith('0')) return '254' + cleaned.substring(1);
+      if (cleaned.length === 9 && (cleaned.startsWith('7') || cleaned.startsWith('1'))) return '254' + cleaned;
+      if (cleaned.startsWith('254') && cleaned.length === 12) return cleaned;
+      return cleaned;
+    }
+
+    function selectOffer(type, name, amount) {
+      selectedOffer = { type, name, amount };
       
-      let selectedOffer = null;
-      let paymentCheckInterval = null;
-      let modalWindow = null;
+      // Update modal info
+      const infoDiv = document.getElementById('selected-offer-info');
+      const amountSpan = document.getElementById('modal-amount');
       
-      function $(sel) { return document.querySelector(sel); }
-      function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
-      
-      function showNotification(msg, type = 'success') {
-        const n = document.getElementById('notification');
-        if (!n) return;
-        n.textContent = msg;
-        n.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${
-          type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'
-        }`;
-        setTimeout(() => n.classList.remove('translate-x-full'), 100);
-        setTimeout(() => n.classList.add('translate-x-full'), 4000);
+      if (infoDiv) {
+        infoDiv.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div><div class="font-bold text-lg text-green-700">${name}</div><div class="text-sm text-gray-600">${type.toUpperCase()}</div></div>
+            <div class="text-xl font-bold text-green-700">Sh ${amount}</div>
+          </div>`;
       }
+      if (amountSpan) amountSpan.textContent = amount;
       
-      function formatPhoneNumber(phone) {
-        let cleaned = phone.replace(/\D/g, '');
-        if (cleaned.startsWith('0')) return '254' + cleaned.substring(1);
-        if (cleaned.length === 9 && (cleaned.startsWith('7') || cleaned.startsWith('1'))) return '254' + cleaned;
-        if (cleaned.startsWith('254') && cleaned.length === 12) return cleaned;
-        return cleaned;
+      // Show phone modal
+      openPhoneModal();
+    }
+
+    function openPhoneModal() {
+      const modal = document.getElementById('phone-modal');
+      const phoneInput = document.getElementById('modal-phone');
+      if (phoneInput) phoneInput.value = '';
+      modal.classList.add('active');
+    }
+
+    function closePhoneModal() {
+      const modal = document.getElementById('phone-modal');
+      modal.classList.remove('active');
+    }
+
+    function openPaymentModal(phoneNumber, amount, description) {
+      const modal = document.getElementById('payment-modal');
+      const iframe = document.getElementById('payment-iframe');
+      
+      // Build payment URL with parameters
+      // MakameSco payment link with phone and amount
+      const paymentUrl = `https://pay.makamesco-tech.co.ke/pay/YjsxGecgIX?phone=${encodeURIComponent(phoneNumber)}&amount=${amount}&description=${encodeURIComponent(description)}`;
+      
+      console.log('Opening payment URL:', paymentUrl);
+      iframe.src = paymentUrl;
+      modal.classList.add('active');
+      
+      // Start monitoring for payment completion
+      startPaymentMonitoring();
+    }
+
+    function closePaymentModal() {
+      const modal = document.getElementById('payment-modal');
+      const iframe = document.getElementById('payment-iframe');
+      modal.classList.remove('active');
+      iframe.src = 'about:blank';
+      stopPaymentMonitoring();
+    }
+
+    function startPaymentMonitoring() {
+      let attempts = 0;
+      stopPaymentMonitoring();
+      
+      paymentCheckInterval = setInterval(() => {
+        attempts++;
+        
+        // After 60 seconds, show instruction to close manually
+        if (attempts > 60) {
+          if (paymentCheckInterval) {
+            clearInterval(paymentCheckInterval);
+            paymentCheckInterval = null;
+          }
+          showNotification('Complete payment on your phone, then close this window', 'info');
+        }
+      }, 1000);
+    }
+
+    function stopPaymentMonitoring() {
+      if (paymentCheckInterval) {
+        clearInterval(paymentCheckInterval);
+        paymentCheckInterval = null;
       }
+    }
+
+    function handlePaymentSuccess() {
+      stopPaymentMonitoring();
+      closePaymentModal();
+      showNotification('✅ Payment successful! Your bundle will be delivered shortly.', 'success');
       
-      function initScrollAnimations() {
-        const observer = new IntersectionObserver(entries => {
-          entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.1 });
-        $all('.animate-on-scroll').forEach(el => observer.observe(el));
-      }
+      // Reset selection
+      selectedOffer = null;
       
-      function finishLoading() {
+      // Reload offers? Optional
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Hide loading screen
+      setTimeout(() => {
         const loading = document.getElementById('loading-screen');
         if (loading) loading.classList.add('hidden');
         const main = document.getElementById('main-content');
@@ -320,252 +408,64 @@
           main.classList.remove('opacity-0', 'scale-95');
           main.classList.add('opacity-100', 'scale-100');
         }
-        initScrollAnimations();
-      }
-      
-      function initTabs() {
-        $all('.tab-button').forEach(btn => {
-          btn.addEventListener('click', () => {
-            $all('.tab-button').forEach(b => {
-              b.classList.remove('bg-green-50', 'text-green-700', 'border-green-700');
-              b.classList.add('text-gray-600');
-            });
-            btn.classList.add('bg-green-50', 'text-green-700', 'border-green-700');
-            btn.classList.remove('text-gray-600');
-            $all('.tab-content').forEach(c => { c.classList.add('hidden'); c.classList.remove('active'); });
-            const targetId = btn.id.replace('-tab', '-content');
-            const activeTab = document.getElementById(targetId);
-            if(activeTab) {
-              activeTab.classList.remove('hidden');
-              setTimeout(() => activeTab.classList.add('active'), 30);
-            }
+      }, 500);
+
+      // Tab switching
+      const tabs = document.querySelectorAll('.tab-button');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabs.forEach(b => {
+            b.classList.remove('bg-green-50', 'text-green-700', 'border-green-700');
+            b.classList.add('text-gray-600');
           });
+          btn.classList.add('bg-green-50', 'text-green-700', 'border-green-700');
+          btn.classList.remove('text-gray-600');
+          
+          const tabContents = document.querySelectorAll('.tab-content');
+          tabContents.forEach(c => c.classList.add('hidden'));
+          
+          let targetId;
+          if (btn.id === 'data-tab') targetId = 'data-content';
+          else if (btn.id === 'minutes-tab') targetId = 'minutes-content';
+          else targetId = 'sms-content';
+          
+          const activeTab = document.getElementById(targetId);
+          if (activeTab) activeTab.classList.remove('hidden');
         });
-      }
-      
-      function initPurchaseDelegation() {
-        const container = document.getElementById('offers-container');
-        if (!container) return;
-        
-        container.addEventListener('click', (ev) => {
-          const btn = ev.target.closest('.purchase-btn');
-          if(!btn) return;
-          ev.preventDefault();
-          
-          const dataType = btn.getAttribute('data-type');
-          const dataName = btn.getAttribute('data-name');
-          const dataAmount = btn.getAttribute('data-amount');
-          
-          if(!dataAmount) { 
-            showNotification('Invalid offer', 'error'); 
-            return; 
-          }
-          
-          selectedOffer = { type: dataType, description: dataName, amount: dataAmount };
-          
-          const selectedDiv = document.getElementById('selected-offer');
-          if (selectedDiv) {
-            selectedDiv.innerHTML = `
-              <div class="flex justify-between items-center">
-                <div><div class="font-bold text-lg text-green-700">${escapeHtml(selectedOffer.description)}</div><div class="text-sm text-gray-600">${selectedOffer.type.toUpperCase()}</div></div>
-                <div class="text-xl font-bold text-green-700">Sh ${selectedOffer.amount}</div>
-              </div>`;
-          }
-          
-          const offersContainer = document.getElementById('offers-container');
-          const phoneSection = document.getElementById('phone-input-section');
-          
-          if (offersContainer) offersContainer.classList.add('hidden');
-          if (phoneSection) phoneSection.classList.remove('hidden');
-          
-          const phoneInput = $('#phone');
-          if (phoneInput) phoneInput.value = '';
-        });
-      }
-      
-      function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-          if(m === '&') return '&amp;';
-          if(m === '<') return '&lt;';
-          if(m === '>') return '&gt;';
-          return m;
-        });
-      }
-      
-      // Open payment modal
-      function openPaymentModal() {
-        const modal = document.getElementById('payment-modal');
-        const iframe = document.getElementById('payment-iframe');
-        
-        // Build the payment URL with pre-filled phone number if possible
-        let paymentUrl = PAYMENT_LINK;
-        const phone = $('#phone')?.value.trim();
-        if (phone) {
-          const formatted = formatPhoneNumber(phone);
-          // Add phone parameter if the payment link supports it
-          paymentUrl = PAYMENT_LINK + (PAYMENT_LINK.includes('?') ? '&' : '?') + 'phone=' + encodeURIComponent(formatted);
-        }
-        
-        iframe.src = paymentUrl;
-        modal.classList.add('active');
-        
-        // Start checking if payment is completed
-        startPaymentMonitoring();
-      }
-      
-      // Close payment modal
-      window.closePaymentModal = function() {
-        const modal = document.getElementById('payment-modal');
-        const iframe = document.getElementById('payment-iframe');
-        modal.classList.remove('active');
-        iframe.src = 'about:blank';
-        stopPaymentMonitoring();
-      }
-      
-      // Monitor iframe for payment completion
-      function startPaymentMonitoring() {
-        let attempts = 0;
-        const iframe = document.getElementById('payment-iframe');
-        
-        paymentCheckInterval = setInterval(() => {
-          attempts++;
-          
-          // Try to detect if payment was successful
-          // This checks if the iframe navigated to a success URL
-          try {
-            const iframeUrl = iframe.contentWindow.location.href;
-            console.log('Iframe URL:', iframeUrl);
-            
-            // Check for success indicators in URL
-            if (iframeUrl.includes('success') || iframeUrl.includes('complete') || iframeUrl.includes('thank-you')) {
-              handlePaymentSuccess();
-            }
-            // Also check if payment page shows completion message
-            const iframeDoc = iframe.contentDocument;
-            if (iframeDoc && iframeDoc.body) {
-              const bodyText = iframeDoc.body.innerText;
-              if (bodyText.includes('Payment successful') || bodyText.includes('Transaction completed') || bodyText.includes('Thank you for your payment')) {
-                handlePaymentSuccess();
-              }
-            }
-          } catch(e) {
-            // Cross-origin error - can't access iframe content directly due to CORS
-            // This is normal - we'll rely on user closing manually
-            if (attempts > 60) { // 60 seconds timeout
-              stopPaymentMonitoring();
-            }
-          }
-        }, 1000);
-      }
-      
-      function stopPaymentMonitoring() {
-        if (paymentCheckInterval) {
-          clearInterval(paymentCheckInterval);
-          paymentCheckInterval = null;
-        }
-      }
-      
-      function handlePaymentSuccess() {
-        stopPaymentMonitoring();
-        closePaymentModal();
-        
-        // Show success message
-        showNotification('✅ Payment successful! Your bundle will be delivered shortly.', 'success');
-        
-        // Reset UI
-        const offersContainer = document.getElementById('offers-container');
-        const phoneSection = document.getElementById('phone-input-section');
-        
-        if (offersContainer) offersContainer.classList.remove('hidden');
-        if (phoneSection) phoneSection.classList.add('hidden');
-        selectedOffer = null;
-        
-        // Optional: Play success sound or show confetti
-        console.log('Payment completed for:', selectedOffer);
-      }
-      
-      // Alternative: Open as popup window (fallback)
-      function openPopupWindow() {
-        const phone = $('#phone')?.value.trim();
-        let paymentUrl = PAYMENT_LINK;
-        if (phone) {
-          const formatted = formatPhoneNumber(phone);
-          paymentUrl = PAYMENT_LINK + (PAYMENT_LINK.includes('?') ? '&' : '?') + 'phone=' + encodeURIComponent(formatted);
-        }
-        
-        const popup = window.open(paymentUrl, 'MakameScoPay', 'width=500,height=700,left=200,top=100,scrollbars=yes,resizable=yes');
-        
-        // Monitor popup close
-        const checkPopup = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(checkPopup);
-            showNotification('Payment window closed. Check your phone for STK push.', 'info');
-            // Reset UI
-            const offersContainer = document.getElementById('offers-container');
-            const phoneSection = document.getElementById('phone-input-section');
-            if (offersContainer) offersContainer.classList.remove('hidden');
-            if (phoneSection) phoneSection.classList.add('hidden');
-          }
-        }, 500);
-      }
-      
-      function initConfirmPurchase() {
-        const confirmBtn = document.getElementById('confirm-purchase');
-        if (!confirmBtn) return;
-        
-        confirmBtn.addEventListener('click', () => {
-          if(!selectedOffer) { 
-            showNotification('Please select an offer first', 'error'); 
-            return; 
-          }
-          
-          const phoneRaw = $('#phone')?.value.trim();
-          if(!phoneRaw) { 
-            showNotification('Please enter your phone number', 'error'); 
-            return; 
-          }
-          
-          const formatted = formatPhoneNumber(phoneRaw);
-          if(formatted.length !== 12) { 
-            showNotification('Invalid phone number. Use format: 0712345678', 'error'); 
-            return; 
-          }
-          
-          // Store payment info
-          sessionStorage.setItem('customerPhone', formatted);
-          sessionStorage.setItem('paymentAmount', selectedOffer.amount);
-          sessionStorage.setItem('paymentDescription', selectedOffer.description);
-          
-          // Open modal payment window
-          openPaymentModal();
-        });
-      }
-      
-      function initCancelAndNew() {
-        const cancelBtn = document.getElementById('cancel-purchase');
-        
-        if (cancelBtn) {
-          cancelBtn.addEventListener('click', () => {
-            const offersContainer = document.getElementById('offers-container');
-            const phoneSection = document.getElementById('phone-input-section');
-            
-            if (offersContainer) offersContainer.classList.remove('hidden');
-            if (phoneSection) phoneSection.classList.add('hidden');
-            selectedOffer = null;
-          });
-        }
-      }
-      
-      // Initialize on page load
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(finishLoading, 500);
-        initTabs();
-        initPurchaseDelegation();
-        initCancelAndNew();
-        initConfirmPurchase();
       });
-    })();
+
+      // Pay button in modal
+      const payBtn = document.getElementById('modal-pay-btn');
+      if (payBtn) {
+        payBtn.addEventListener('click', () => {
+          const phoneInput = document.getElementById('modal-phone');
+          const phone = phoneInput?.value.trim();
+          
+          if (!phone) {
+            showNotification('Please enter your phone number', 'error');
+            return;
+          }
+          
+          const formatted = formatPhoneNumber(phone);
+          if (formatted.length !== 12) {
+            showNotification('Invalid phone number. Use format: 0712345678', 'error');
+            return;
+          }
+          
+          if (!selectedOffer) {
+            showNotification('Please select an offer first', 'error');
+            return;
+          }
+          
+          closePhoneModal();
+          
+          // Open payment modal with pre-filled data
+          setTimeout(() => {
+            openPaymentModal(formatted, selectedOffer.amount, selectedOffer.name);
+          }, 300);
+        });
+      }
+    });
   </script>
 </body>
 </html>
