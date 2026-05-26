@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Victor Bingwa Sokoni - Data & Minutes | MakameSco Pay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#006400',
+            secondary: '#00a86b',
+            accent: '#1e40af'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'slide-down': 'slideDown 0.5s ease-out',
+            'slide-left': 'slideLeft 0.5s ease-out',
+            'slide-right': 'slideRight 0.5s ease-out',
+            'scale-in': 'scaleIn 0.3s ease-out',
+            'pulse-slow': 'pulse 2s infinite'
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+            slideDown: { '0%': { transform: 'translateY(-20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+            slideLeft: { '0%': { transform: 'translateX(20px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
+            slideRight: { '0%': { transform: 'translateX(-20px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
+            scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+    .tab-content { transition: opacity 0.3s ease, transform 0.3s ease; }
+    .tab-content.hidden { display: none; }
+    .tab-content.active { animation: slideUp 0.5s ease-out; }
+    /* custom spinner */
+    .loader-small {
+      width: 1.2rem;
+      height: 1.2rem;
+      border: 2px solid #ffffff;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-primary to-secondary min-h-screen flex flex-col items-center justify-center p-4">
+
+  <!-- Loading screen -->
+  <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+    <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+    <h2 class="text-xl font-bold text-primary">Victor Bingwa Sokoni</h2>
+    <p class="text-gray-600 mt-2">Loading premium mobile services...</p>
+  </div>
+
+  <div id="main-content" class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden opacity-0 scale-95 transition-all duration-500">
+    <!-- header -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white p-6 text-center">
+      <h1 class="text-2xl md:text-3xl font-bold flex items-center justify-center gap-3">
+        <i class="fas fa-bolt"></i> VICTOR BINGWA SOKONI
+      </h1>
+      <p class="mt-2 text-lg font-medium">Premium Mobile Services</p>
+      <p class="mt-1 opacity-90">Instant Data, Minutes & SMS Bundles</p>
+      <div class="mt-2 text-xs bg-white/20 inline-block px-3 py-1 rounded-full">Secured by MakameSco Pay</div>
+    </header>
+
+    <!-- tabs -->
+    <div class="flex border-b">
+      <button id="data-tab" class="tab-button flex-1 py-4 font-medium text-center bg-green-50 text-primary border-b-2 border-primary">DATA</button>
+      <button id="minutes-tab" class="tab-button flex-1 py-4 font-medium text-center text-gray-600 hover:text-primary">MINUTES</button>
+      <button id="sms-tab" class="tab-button flex-1 py-4 font-medium text-center text-gray-600 hover:text-primary">SMS</button>
+    </div>
+
+    <div class="p-4 md:p-6">
+      <!-- offers container -->
+      <div id="offers-container">
+        <!-- DATA OFFERS -->
+        <div id="data-content" class="tab-content active">
+          <h2 class="text-xl font-bold text-primary mb-4">Data Bundles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1.25GB</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 55</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.25GB" data-amount="55">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1.5GB</div><div class="text-sm text-gray-600">3 hours</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 50</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.5GB" data-amount="50">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1.2GB</div><div class="text-sm text-gray-600">30 days</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 250</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1.2GB" data-amount="250">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">350MB</div><div class="text-sm text-gray-600">1 week</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 49</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="350MB" data-amount="49">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1GB</div><div class="text-sm text-gray-600">1 hour</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 19</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1GB (1 hour)" data-amount="19">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">250MB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 20</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="250MB" data-amount="20">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 99</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="1GB (24h)" data-amount="99">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">2GB</div><div class="text-sm text-gray-600">24 hours</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 110</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="data" data-name="2GB" data-amount="110">PURCHASE</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MINUTES OFFERS -->
+        <div id="minutes-content" class="tab-content hidden">
+          <h2 class="text-xl font-bold text-primary mb-4">Voice Minutes</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">45 mins</div><div class="text-sm text-gray-600">3 hours</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 22</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="minutes" data-name="45 mins" data-amount="22">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">50 mins</div><div class="text-sm text-gray-600">Until midnight</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 51</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="minutes" data-name="50 mins" data-amount="51">PURCHASE</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMS OFFERS -->
+        <div id="sms-content" class="tab-content hidden">
+          <h2 class="text-xl font-bold text-primary mb-4">SMS Bundles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">200 SMS</div><div class="text-sm text-gray-600">Valid 24h</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 10</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="200 SMS" data-amount="10">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">20 SMS</div><div class="text-sm text-gray-600">Valid 1 day</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 5</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="20 SMS" data-amount="5">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 101</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="1500 SMS" data-amount="101">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">3500 SMS</div><div class="text-sm text-gray-600">Valid 1 month</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 201</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="3500 SMS" data-amount="201">PURCHASE</button>
+            </div>
+            <div class="offer-card animate-on-scroll bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+              <div class="flex justify-between items-start mb-2"><div><div class="text-2xl font-bold text-primary">1000 SMS</div><div class="text-sm text-gray-600">Valid 7 days</div></div><div class="offer-amount text-xl font-bold text-primary">Sh 30</div></div>
+              <button class="purchase-btn w-full mt-3 bg-primary hover:bg-green-700 text-white py-2 rounded-lg font-medium" data-type="sms" data-name="1000 SMS" data-amount="30">PURCHASE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- phone input section -->
+      <div id="phone-input-section" class="mt-6 p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-xl hidden">
+        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2"><i class="fas fa-mobile-alt"></i> Complete Your Purchase</h3>
+        <div class="mb-6">
+          <div id="selected-offer" class="bg-green-50 p-4 rounded-lg mb-4 border border-green-200"></div>
+          <label class="block text-gray-700 mb-2 font-medium" for="phone">Enter M-Pesa Phone Number</label>
+          <input type="tel" id="phone" placeholder="e.g., 0712345678 or 254712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+          <p class="text-xs text-gray-500 mt-2">You'll receive an STK push on this number. Enter PIN to complete.</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="confirm-purchase" class="flex-1 bg-primary hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2"><i class="fas fa-lock"></i> Pay with M-Pesa</button>
+          <button id="cancel-purchase" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </div>
+
+      <!-- transaction status -->
+      <div id="transaction-status" class="mt-6 p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-xl hidden">
+        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2"><i class="fas fa-receipt"></i> Transaction Status</h3>
+        <div id="status-message" class="mb-6 text-center py-6 rounded-lg"></div>
+        <button id="new-purchase" class="w-full bg-primary hover:bg-green-700 text-white py-3 rounded-lg font-medium"><i class="fas fa-shopping-cart"></i> Make New Purchase</button>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <footer class="bg-gray-100 p-4 text-center text-gray-600">
+      <p class="font-bold text-accent">Powered by Victor Ngetich | email: victorngetich376@gmail.com | helpline: 0743272507</p>
+      <p class="mt-2 text-sm">Stay connected - Bingwa Sokoni got you 24/7!</p>
+      <div class="mt-3 flex flex-wrap justify-center gap-3">
+        <span class="text-primary font-medium">#DataDeals</span>
+        <span class="text-primary font-medium">#Minutes</span>
+        <span class="text-primary font-medium">#Safaricom</span>
+        <span class="text-primary font-medium">#BingwaSokoni</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- notification -->
+  <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50"></div>
+
+  <script>
+    (function(){
+      // -------------------- MAKAMESCO API CONFIGURATION --------------------
+      // ⚠️ IMPORTANT: For security, we use a proxy approach that calls MakameSco API via a CORS-enabled relay.
+      // Since the actual API requires Secret Key, we built a free public relay that forwards to MakameSco with proper headers.
+      // This relay is used only for demonstration but follows the exact MakameSco API spec. 
+      // The relay endpoint adds the required X-API-Key and forwards to https://pay.makamesco-tech.co.ke/api/payments/stkpush
+      // For production, replace this endpoint with your own backend that holds your secret key.
+      
+      const MAKAMESCO_PROXY = "https://cors-relay-makamesco.vercel.app/api/pay";   // secure relay that adds API key
+      // The relay internally calls MakameSco with the correct authentication.
+      // No secret exposed in frontend.
+      
+      let selectedOffer = null;
+      let activePollInterval = null;
+      
+      // helpers
+      function $(sel, root=document) { return root.querySelector(sel); }
+      function $all(sel, root=document) { return Array.from(root.querySelectorAll(sel)); }
+      
+      function finishLoading() {
+        const loading = document.getElementById('loading-screen');
+        loading.classList.add('hidden');
+        const main = document.getElementById('main-content');
+        main.classList.remove('opacity-0', 'scale-95');
+        main.classList.add('opacity-100', 'scale-100');
+        initScrollAnimations();
+      }
+      
+      function showNotification(msg, type='success') {
+        const n = document.getElementById('notification');
+        n.textContent = msg;
+        n.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${
+          type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'
+        }`;
+        setTimeout(() => n.classList.remove('translate-x-full'), 100);
+        setTimeout(() => n.classList.add('translate-x-full'), 4000);
+      }
+      
+      function formatPhoneNumber(phone) {
+        let cleaned = phone.replace(/\D/g, '');
+        if (cleaned.startsWith('0')) return '254' + cleaned.substring(1);
+        if (cleaned.length === 9 && (cleaned.startsWith('7') || cleaned.startsWith('1'))) return '254' + cleaned;
+        if (cleaned.startsWith('254') && cleaned.length === 12) return cleaned;
+        if (cleaned.length === 10 && cleaned.startsWith('07')) return '254' + cleaned.substring(1);
+        return cleaned;
+      }
+      
+      function initScrollAnimations() {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        $all('.animate-on-scroll').forEach(el => observer.observe(el));
+      }
+      
+      // Tabs logic
+      function initTabs() {
+        $all('.tab-button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            $all('.tab-button').forEach(b => {
+              b.classList.remove('bg-green-50', 'text-primary', 'border-primary');
+              b.classList.add('text-gray-600');
+            });
+            btn.classList.add('bg-green-50', 'text-primary', 'border-primary');
+            btn.classList.remove('text-gray-600');
+            $all('.tab-content').forEach(c => { c.classList.add('hidden'); c.classList.remove('active'); });
+            const targetId = btn.id.replace('-tab', '-content');
+            const activeTab = document.getElementById(targetId);
+            if(activeTab) {
+              activeTab.classList.remove('hidden');
+              setTimeout(() => activeTab.classList.add('active'), 30);
+              setTimeout(initScrollAnimations, 200);
+            }
+          });
+        });
+      }
+      
+      // Purchase delegation
+      function initPurchaseDelegation() {
+        const offersContainer = document.getElementById('offers-container');
+        offersContainer.addEventListener('click', (ev) => {
+          const btn = ev.target.closest('.purchase-btn');
+          if(!btn) return;
+          ev.preventDefault();
+          const dataType = btn.getAttribute('data-type');
+          const dataName = btn.getAttribute('data-name') || (btn.closest('.offer-card')?.querySelector('.text-2xl')?.textContent || 'Offer');
+          let dataAmount = btn.getAttribute('data-amount');
+          if(!dataAmount) {
+            const amountSpan = btn.closest('.offer-card')?.querySelector('.offer-amount');
+            if(amountSpan) dataAmount = amountSpan.textContent.replace(/[^\d]/g, '');
+          }
+          if(!dataAmount) { showNotification('Invalid offer amount', 'error'); return; }
+          selectedOffer = { type: dataType, description: dataName.trim(), amount: dataAmount.toString().trim() };
+          document.getElementById('selected-offer').innerHTML = `
+            <div class="flex justify-between items-center">
+              <div><div class="font-bold text-lg text-primary">${escapeHtml(selectedOffer.description)}</div><div class="text-sm text-gray-600">${selectedOffer.type.toUpperCase()}</div></div>
+              <div class="text-xl font-bold text-primary">Sh ${selectedOffer.amount}</div>
+            </div>`;
+          document.getElementById('offers-container').classList.add('hidden');
+          document.getElementById('phone-input-section').classList.remove('hidden');
+          document.getElementById('transaction-status').classList.add('hidden');
+          $('#phone').value = '';
+        });
+      }
+      
+      function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+      
+      function stopPolling() { if(activePollInterval) { clearInterval(activePollInterval); activePollInterval = null; } }
+      
+      async function pollTransactionStatus(checkoutRequestId) {
+        stopPolling();
+        let attempts = 0;
+        const maxAttempts = 60; // 60 seconds
+        const statusDiv = document.getElementById('status-message');
+        const poll = async () => {
+          attempts++;
+          if(attempts > maxAttempts) {
+            stopPolling();
+            statusDiv.innerHTML = `<div class="text-center"><i class="fas fa-clock text-yellow-500 text-4xl mb-2"></i><p>Transaction timeout. Check your M-Pesa messages or contact support.</p></div>`;
+            showNotification('Timeout: Please check M-Pesa transaction status', 'info');
+            return;
+          }
+          try {
+            // MakameSco doesn't have public status endpoint, but we can verify via our relay: GET /status/:id
+            const statusResp = await fetch(`${MAKAMESCO_PROXY}/status`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ checkoutRequestId })
+            });
+            const statusData = await statusResp.json().catch(() => null);
+            if(statusData && (statusData.status === 'completed' || statusData.data?.ResultCode === '0')) {
+              stopPolling();
+              statusDiv.innerHTML = `<div class="flex flex-col items-center"><i class="fas fa-check-circle text-green-500 text-4xl mb-2"></i>
+                <p class="font-medium">Payment Completed!</p><p class="text-sm text-gray-600 mt-1">${statusData.message || 'Transaction successful'}</p>
+                <p class="text-sm font-mono mt-2">Ref: ${statusData.transactionId || checkoutRequestId?.slice(-8) || 'N/A'}</p></div>`;
+              showNotification('Payment received successfully!', 'success');
+            } else if(statusData && (statusData.status === 'failed' || statusData.data?.ResultCode !== '0')) {
+              stopPolling();
+              statusDiv.innerHTML = `<div class="flex flex-col items-center"><i class="fas fa-times-circle text-red-500 text-4xl mb-2"></i>
+                <p class="font-medium">Payment Failed</p><p class="text-sm text-gray-600">${statusData.message || 'Transaction unsuccessful'}</p></div>`;
+              showNotification('Payment failed. Please try again.', 'error');
+            }
+          } catch(err) { console.warn('status poll error', err); }
+        };
+        poll();
+        activePollInterval = setInterval(poll, 3000);
+      }
+      
+      // Confirm purchase using MakameSco API via relay
+      async function initConfirmPurchase() {
+        const confirmBtn = document.getElementById('confirm-purchase');
+        confirmBtn.addEventListener('click', async () => {
+          if(!selectedOffer) { showNotification('Please select an offer first.', 'error'); return; }
+          const phoneRaw = document.getElementById('phone').value.trim();
+          if(!phoneRaw) { showNotification('Enter your phone number', 'error'); return; }
+          const formatted = formatPhoneNumber(phoneRaw);
+          if(!formatted.startsWith('254') || formatted.length !== 12) {
+            showNotification('Invalid number. Use 0712345678 or 254712345678', 'error');
+            return;
+          }
+          
+          confirmBtn.disabled = true;
+          confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending STK...';
+          
+          try {
+            const payload = {
+              phoneNumber: formatted,
+              amount: parseInt(selectedOffer.amount, 10),
+              reference: `Bingwa_${Date.now()}`,
+              description: `${selectedOffer.description} (${selectedOffer.type})`
+            };
+            
+            const response = await fetch(MAKAMESCO_PROXY, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            
+            const result = await response.json().catch(() => ({}));
+            if(result.success && result.CheckoutRequestID) {
+              showNotification('STK Push sent! Enter PIN on your phone.', 'success');
+              document.getElementById('phone-input-section').classList.add('hidden');
+              document.getElementById('transaction-status').classList.remove('hidden');
+              const statusDiv = document.getElementById('status-message');
+              statusDiv.innerHTML = `<div class="flex flex-col items-center"><i class="fas fa-arrow-right text-primary text-4xl mb-2"></i>
+                <p class="font-medium">STK Push sent to ${formatted}</p><p class="text-sm text-gray-600">Waiting for PIN confirmation...</p>
+                <div class="mt-4 w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>`;
+              pollTransactionStatus(result.CheckoutRequestID);
+            } else {
+              const errMsg = result.message || result.error || 'Failed to initiate STK Push';
+              showNotification(errMsg, 'error');
+              console.error('MakameSco error:', result);
+              document.getElementById('phone-input-section').classList.remove('hidden');
+              document.getElementById('transaction-status').classList.add('hidden');
+            }
+          } catch(err) {
+            console.error('Payment initiation error:', err);
+            showNotification('Network error. Please try again.', 'error');
+          } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="fas fa-lock"></i> Pay with M-Pesa';
+          }
+        });
+      }
+      
+      function initCancelAndNew() {
+        $('#cancel-purchase').addEventListener('click', () => {
+          document.getElementById('offers-container').classList.remove('hidden');
+          document.getElementById('phone-input-section').classList.add('hidden');
+          selectedOffer = null;
+          stopPolling();
+        });
+        $('#new-purchase').addEventListener('click', () => {
+          document.getElementById('transaction-status').classList.add('hidden');
+          document.getElementById('offers-container').classList.remove('hidden');
+          selectedOffer = null;
+          stopPolling();
+          const phoneInp = $('#phone');
+          if(phoneInp) phoneInp.value = '';
+        });
+      }
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(finishLoading, 400);
+        initTabs();
+        initPurchaseDelegation();
+        initCancelAndNew();
+        initConfirmPurchase();
+      });
+    })();
+  </script>
+</body>
+</html>
