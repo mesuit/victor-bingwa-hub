@@ -226,12 +226,15 @@
     const EXTERNAL_STORE_URL = "https://onlinestore.bingwastore.com/ngetichconnect1";
     const API_KEY = "sk_321460063d3e6092d78a6ffd419ebe6124e0d6f16605c7f0f0af4012be712546";
     const API_URL = "https://pay.makamesco-tech.co.ke/api/payments/stkpush";
+    const STATUS_URL = "https://pay.makamesco-tech.co.ke/api/payments/status/";
 
     let currentOffer = null;
     let currentPurchaseType = 'myself';
     let currentCheckoutId = null;
     let statusInterval = null;
     let progressInterval = null;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 20; // 60 seconds max
 
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
@@ -257,8 +260,10 @@
       document.getElementById('phoneModal').classList.remove('active');
       document.getElementById('statusModal').classList.remove('active');
       currentOffer = null;
+      currentCheckoutId = null;
       if (statusInterval) clearInterval(statusInterval);
       if (progressInterval) clearInterval(progressInterval);
+      attempts = 0;
     }
 
     function selectOffer(name, amount) {
@@ -268,6 +273,41 @@
       document.getElementById('phoneModal').classList.add('active');
       document.getElementById('myPhoneInput').value = '';
       document.getElementById('recipientPhoneInput').value = '';
+    }
+
+    async function checkTransactionStatus() {
+      if (!currentCheckoutId) {
+        console.log('No checkout ID to check');
+        return null;
+      }
+      
+      try {
+        console.log(`Checking status for: ${currentCheckoutId}`);
+        const response = await fetch(STATUS_URL + currentCheckoutId, {
+          method: 'GET',
+          headers: { 'X-API-Key': API_KEY }
+        });
+        const result = await response.json();
+        console.log('Status result:', result);
+        
+        // Check for successful payment
+        if (result.status === 'completed' || result.responseCode === '0' || 
+            result.data?.status === 'success' || result.ResponseCode === '0' ||
+            (result.ResultCode === '0' && result.ResultDesc?.includes('success'))) {
+          return 'success';
+        }
+        // Check for failed payment
+        else if (result.status === 'failed' || result.responseCode === '1' || 
+                 result.ResponseCode === '1' || result.ResultCode === '1037' ||
+                 (result.ResultDesc && result.ResultDesc.includes('failed'))) {
+          return 'failed';
+        }
+        // Still pending
+        return 'pending';
+      } catch (error) {
+        console.log('Status check error:', error);
+        return 'pending';
+      }
     }
 
     async function sendSTKPush(phone, amount, name) {
@@ -291,12 +331,13 @@
           body: JSON.stringify(payload)
         });
         const result = await response.json();
+        console.log('STK Response:', result);
         
-        if (result.responseCode === "0" || result.checkoutRequestId) {
+        if (result.responseCode === "0" && result.checkoutRequestId) {
           currentCheckoutId = result.checkoutRequestId;
           return true;
         }
-        showToast(result.message || 'Failed', true);
+        showToast(result.message || 'Failed to send STK', true);
         return false;
       } catch (error) {
         showToast('Network error: ' + error.message, true);
@@ -307,6 +348,7 @@
     async function handlePayment() {
       if (!currentOffer) { showToast('Select an offer first', true); return; }
       
+      // Someone Else - Redirect to external store
       if (currentPurchaseType === 'someoneelse') {
         const recipient = document.getElementById('recipientPhoneInput').value.trim();
         if (!recipient) { showToast('Enter recipient phone number', true); return; }
@@ -321,46 +363,105 @@
         return;
       }
       
+      // Myself - Process payment
       const phone = document.getElementById('myPhoneInput').value.trim();
       if (!phone) { showToast('Enter your phone number', true); return; }
+      
+      const formattedPhone = formatPhone(phone);
+      if (formattedPhone.length !== 12) { showToast('Invalid phone number! Use 0712345678', true); return; }
       
       closeModal('phoneModal');
       document.getElementById('statusModal').classList.add('active');
       document.getElementById('closeStatusBtn').classList.add('hidden');
+      
+      // Reset progress
+      attempts = 0;
+      let progress = 25;
       document.getElementById('progressBar').style.width = '25%';
       document.getElementById('statusTitle').innerHTML = 'Sending STK Push...';
-      document.getElementById('statusMessage').innerHTML = `Sending payment request for ${currentOffer.name}`;
+      document.getElementById('statusMessage').innerHTML = `Sending payment request for ${currentOffer.name} to ${formattedPhone}`;
       document.getElementById('statusIcon').innerHTML = '<i class="fas fa-spinner fa-pulse text-green-600 text-5xl"></i>';
       
-      let progress = 25;
       if (progressInterval) clearInterval(progressInterval);
       progressInterval = setInterval(() => {
-        if (progress < 90) { progress += 5; document.getElementById('progressBar').style.width = progress + '%'; }
+        if (progress < 90 && !currentCheckoutId) {
+          progress += 5;
+          document.getElementById('progressBar').style.width = progress + '%';
+        }
       }, 500);
       
+      // Send STK Push
       const success = await sendSTKPush(phone, currentOffer.amount, currentOffer.name);
       
-      if (success) {
-        document.getElementById('statusTitle').innerHTML = 'STK Push Sent! 🔔';
-        document.getElementById('statusMessage').innerHTML = `Check your phone ${phone} and enter PIN`;
-        document.getElementById('statusIcon').innerHTML = '<i class="fas fa-check-circle text-yellow-500 text-5xl"></i>';
-        document.getElementById('progressBar').style.width = '90%';
+      if (!success) {
+        document.getElementById('statusTitle').innerHTML = '❌ STK Failed';
+        document.getElementById('statusMessage').innerHTML = 'Could not send payment request. Please try again.';
+        document.getElementById('statusIcon').innerHTML = '<i class="fas fa-times-circle text-red-500 text-5xl"></i>';
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('closeStatusBtn').classList.remove('hidden');
+        if (progressInterval) clearInterval(progressInterval);
+        return;
+      }
+      
+      // STK Sent - Now monitor status
+      document.getElementById('statusTitle').innerHTML = 'STK Push Sent! 🔔';
+      document.getElementById('statusMessage').innerHTML = `Check your phone ${formattedPhone} and enter your M-Pesa PIN. Waiting for confirmation...`;
+      document.getElementById('statusIcon').innerHTML = '<i class="fas fa-hourglass-half text-yellow-500 text-5xl"></i>';
+      document.getElementById('progressBar').style.width = '50%';
+      
+      if (progressInterval) clearInterval(progressInterval);
+      
+      // Start polling for transaction status
+      if (statusInterval) clearInterval(statusInterval);
+      statusInterval = setInterval(async () => {
+        attempts++;
         
-        setTimeout(() => {
-          document.getElementById('statusTitle').innerHTML = '✅ Payment Complete!';
-          document.getElementById('statusMessage').innerHTML = `Your ${currentOffer.name} has been purchased.`;
+        // Update progress based on attempts
+        let newProgress = 50 + Math.min(40, (attempts / MAX_ATTEMPTS) * 40);
+        document.getElementById('progressBar').style.width = newProgress + '%';
+        
+        const status = await checkTransactionStatus();
+        
+        if (status === 'success') {
+          // Payment successful!
+          clearInterval(statusInterval);
+          clearInterval(progressInterval);
+          statusInterval = null;
+          
+          document.getElementById('statusTitle').innerHTML = '✅ Payment Successful!';
+          document.getElementById('statusMessage').innerHTML = `Your ${currentOffer.name} bundle has been purchased successfully. Amount: Sh ${currentOffer.amount}`;
           document.getElementById('statusIcon').innerHTML = '<i class="fas fa-check-circle text-green-500 text-5xl"></i>';
           document.getElementById('progressBar').style.width = '100%';
           document.getElementById('closeStatusBtn').classList.remove('hidden');
-          if (progressInterval) clearInterval(progressInterval);
-        }, 5000);
-      } else {
-        document.getElementById('statusTitle').innerHTML = '❌ Failed';
-        document.getElementById('statusMessage').innerHTML = 'Please try again';
-        document.getElementById('statusIcon').innerHTML = '<i class="fas fa-times-circle text-red-500 text-5xl"></i>';
-        document.getElementById('closeStatusBtn').classList.remove('hidden');
-        if (progressInterval) clearInterval(progressInterval);
-      }
+          showToast('Payment completed successfully!', false);
+          
+        } else if (status === 'failed') {
+          // Payment failed
+          clearInterval(statusInterval);
+          clearInterval(progressInterval);
+          statusInterval = null;
+          
+          document.getElementById('statusTitle').innerHTML = '❌ Payment Failed';
+          document.getElementById('statusMessage').innerHTML = 'The transaction could not be completed. Please try again.';
+          document.getElementById('statusIcon').innerHTML = '<i class="fas fa-times-circle text-red-500 text-5xl"></i>';
+          document.getElementById('progressBar').style.width = '100%';
+          document.getElementById('closeStatusBtn').classList.remove('hidden');
+          showToast('Payment failed. Please try again.', true);
+          
+        } else if (attempts >= MAX_ATTEMPTS) {
+          // Timeout
+          clearInterval(statusInterval);
+          clearInterval(progressInterval);
+          statusInterval = null;
+          
+          document.getElementById('statusTitle').innerHTML = '⏳ Payment Pending';
+          document.getElementById('statusMessage').innerHTML = 'We are still waiting for confirmation. Please check your M-Pesa messages. The bundle will be delivered once payment is confirmed.';
+          document.getElementById('statusIcon').innerHTML = '<i class="fas fa-clock text-yellow-500 text-5xl"></i>';
+          document.getElementById('progressBar').style.width = '100%';
+          document.getElementById('closeStatusBtn').classList.remove('hidden');
+          showToast('Payment pending. Check your M-Pesa messages.', false);
+        }
+      }, 3000);
     }
 
     function initTabs() {
