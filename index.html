@@ -33,6 +33,10 @@
     .tab-content { transition: opacity 0.3s ease, transform 0.3s ease; }
     .tab-content.hidden { display: none; }
     .tab-content.active { animation: slideUp 0.5s ease-out; }
+    .btn-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-primary to-secondary min-h-screen flex flex-col items-center justify-center p-4">
@@ -182,31 +186,35 @@
 
   <script>
     (function() {
-      // ✅ Pointing to your proxy.php file
+      // API endpoint - points to your proxy.php
       const API_BASE = "proxy.php";
       
       let selectedOffer = null;
-      let pollInterval = null;
+      let currentTimeout = null;
       
       function $(sel) { return document.querySelector(sel); }
       function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
       
       function finishLoading() {
-        document.getElementById('loading-screen').classList.add('hidden');
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) loadingScreen.classList.add('hidden');
         const main = document.getElementById('main-content');
-        main.classList.remove('opacity-0', 'scale-95');
-        main.classList.add('opacity-100', 'scale-100');
+        if (main) {
+          main.classList.remove('opacity-0', 'scale-95');
+          main.classList.add('opacity-100', 'scale-100');
+        }
         initScrollAnimations();
       }
       
       function showNotification(msg, type = 'success') {
         const n = document.getElementById('notification');
+        if (!n) return;
         n.textContent = msg;
         n.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50 ${
           type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'
         }`;
         setTimeout(() => n.classList.remove('translate-x-full'), 100);
-        setTimeout(() => n.classList.add('translate-x-full'), 4000);
+        setTimeout(() => n.classList.add('translate-x-full'), 5000);
       }
       
       function formatPhoneNumber(phone) {
@@ -245,7 +253,10 @@
       }
       
       function initPurchaseDelegation() {
-        document.getElementById('offers-container').addEventListener('click', (ev) => {
+        const container = document.getElementById('offers-container');
+        if (!container) return;
+        
+        container.addEventListener('click', (ev) => {
           const btn = ev.target.closest('.purchase-btn');
           if(!btn) return;
           ev.preventDefault();
@@ -259,24 +270,37 @@
             if(amountSpan) dataAmount = amountSpan.textContent.replace(/[^\d]/g, '');
           }
           
-          if(!dataAmount) { showNotification('Invalid offer', 'error'); return; }
+          if(!dataAmount) { 
+            showNotification('Invalid offer', 'error'); 
+            return; 
+          }
           
           selectedOffer = { type: dataType, description: dataName, amount: dataAmount };
           
-          document.getElementById('selected-offer').innerHTML = `
-            <div class="flex justify-between items-center">
-              <div><div class="font-bold text-lg text-primary">${escapeHtml(selectedOffer.description)}</div><div class="text-sm text-gray-600">${selectedOffer.type.toUpperCase()}</div></div>
-              <div class="text-xl font-bold text-primary">Sh ${selectedOffer.amount}</div>
-            </div>`;
+          const selectedDiv = document.getElementById('selected-offer');
+          if (selectedDiv) {
+            selectedDiv.innerHTML = `
+              <div class="flex justify-between items-center">
+                <div><div class="font-bold text-lg text-primary">${escapeHtml(selectedOffer.description)}</div><div class="text-sm text-gray-600">${selectedOffer.type.toUpperCase()}</div></div>
+                <div class="text-xl font-bold text-primary">Sh ${selectedOffer.amount}</div>
+              </div>`;
+          }
           
-          document.getElementById('offers-container').classList.add('hidden');
-          document.getElementById('phone-input-section').classList.remove('hidden');
-          document.getElementById('transaction-status').classList.add('hidden');
-          $('#phone').value = '';
+          const offersContainer = document.getElementById('offers-container');
+          const phoneSection = document.getElementById('phone-input-section');
+          const statusSection = document.getElementById('transaction-status');
+          
+          if (offersContainer) offersContainer.classList.add('hidden');
+          if (phoneSection) phoneSection.classList.remove('hidden');
+          if (statusSection) statusSection.classList.add('hidden');
+          
+          const phoneInput = $('#phone');
+          if (phoneInput) phoneInput.value = '';
         });
       }
       
       function escapeHtml(str) {
+        if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
           if(m === '&') return '&amp;';
           if(m === '<') return '&lt;';
@@ -285,14 +309,21 @@
         });
       }
       
-      function stopPolling() { if(pollInterval) { clearInterval(pollInterval); pollInterval = null; } }
-      
       async function initConfirmPurchase() {
-        $('#confirm-purchase').addEventListener('click', async () => {
-          if(!selectedOffer) { showNotification('Please select an offer first', 'error'); return; }
+        const confirmBtn = document.getElementById('confirm-purchase');
+        if (!confirmBtn) return;
+        
+        confirmBtn.addEventListener('click', async () => {
+          if(!selectedOffer) { 
+            showNotification('Please select an offer first', 'error'); 
+            return; 
+          }
           
-          const phoneRaw = $('#phone').value.trim();
-          if(!phoneRaw) { showNotification('Please enter your phone number', 'error'); return; }
+          const phoneRaw = $('#phone')?.value.trim();
+          if(!phoneRaw) { 
+            showNotification('Please enter your phone number', 'error'); 
+            return; 
+          }
           
           const formatted = formatPhoneNumber(phoneRaw);
           if(formatted.length !== 12) { 
@@ -300,9 +331,11 @@
             return; 
           }
           
-          const btn = $('#confirm-purchase');
+          const btn = confirmBtn;
+          const originalText = btn.innerHTML;
           btn.disabled = true;
           btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+          btn.classList.add('btn-loading');
           
           try {
             const payload = {
@@ -312,9 +345,9 @@
               description: `${selectedOffer.description} - ${selectedOffer.type}`
             };
             
-            console.log('Sending payment request:', payload);
+            console.log('📤 Sending payment request:', payload);
+            showNotification('Sending payment request...', 'info');
             
-            // Call your proxy.php (no API key in frontend!)
             const response = await fetch(API_BASE, {
               method: 'POST',
               headers: {
@@ -324,76 +357,118 @@
             });
             
             const result = await response.json();
-            console.log('Proxy response:', result);
+            console.log('📥 Full response from proxy:', result);
             
-            // Check for successful STK push
-            if(result.success === true || result.CheckoutRequestID || result.data?.CheckoutRequestID) {
+            // Check for successful response
+            if (result.success === true || result.CheckoutRequestID || (result.data && result.data.CheckoutRequestID)) {
               const checkoutId = result.CheckoutRequestID || result.data?.CheckoutRequestID;
-              
-              showNotification('✅ STK Push sent! Check your phone', 'success');
-              document.getElementById('phone-input-section').classList.add('hidden');
-              document.getElementById('transaction-status').classList.remove('hidden');
-              
-              $('#status-message').innerHTML = `
-                <div class="flex flex-col items-center">
-                  <i class="fas fa-spinner fa-pulse text-primary text-4xl mb-2"></i>
-                  <p class="font-medium text-lg">STK Push Sent!</p>
-                  <p class="text-sm text-gray-600 mt-2">📱 To: ${formatted}</p>
-                  <p class="text-sm text-gray-600 mt-1">🔐 Enter your M-Pesa PIN to complete payment</p>
-                  <div class="mt-6 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  <p class="text-xs text-gray-400 mt-4">Transaction ID: ${checkoutId?.slice(-8) || 'Processing...'}</p>
-                </div>`;
-              
-              // Keep the spinner and show success message after delay
-              setTimeout(() => {
-                if(document.getElementById('transaction-status') && !document.getElementById('transaction-status').classList.contains('hidden')) {
-                  $('#status-message').innerHTML = `
-                    <div class="flex flex-col items-center">
-                      <i class="fas fa-check-circle text-green-500 text-5xl mb-3"></i>
-                      <p class="font-medium text-green-600">Payment Request Sent!</p>
-                      <p class="text-sm text-gray-600 mt-2">Check your M-Pesa messages</p>
-                      <p class="text-xs text-gray-400 mt-3">Complete the transaction on your phone</p>
-                    </div>`;
-                  showNotification('Check your phone to complete payment', 'success');
-                }
-              }, 4000);
-              
+              handleSuccess(result, formatted, checkoutId);
             } else {
-              const errorMsg = result.message || result.error || 'Failed to send STK Push';
-              showNotification('❌ ' + errorMsg, 'error');
-              console.error('Payment error details:', result);
-              document.getElementById('phone-input-section').classList.remove('hidden');
-              document.getElementById('transaction-status').classList.add('hidden');
+              // Show detailed error
+              const errorMsg = result.message || result.error || JSON.stringify(result) || 'Payment initiation failed';
+              console.error('❌ Payment error:', result);
+              showNotification('❌ Error: ' + errorMsg.substring(0, 100), 'error');
+              
+              const phoneSection = document.getElementById('phone-input-section');
+              const statusSection = document.getElementById('transaction-status');
+              if (phoneSection) phoneSection.classList.remove('hidden');
+              if (statusSection) statusSection.classList.add('hidden');
             }
+            
           } catch(err) {
-            console.error('Payment error:', err);
+            console.error('❌ Network error:', err);
             showNotification('Network error: ' + err.message, 'error');
-            document.getElementById('phone-input-section').classList.remove('hidden');
-            document.getElementById('transaction-status').classList.add('hidden');
+            
+            const phoneSection = document.getElementById('phone-input-section');
+            const statusSection = document.getElementById('transaction-status');
+            if (phoneSection) phoneSection.classList.remove('hidden');
+            if (statusSection) statusSection.classList.add('hidden');
           } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-lock"></i> Pay with M-Pesa';
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-loading');
           }
         });
       }
       
-      function initCancelAndNew() {
-        $('#cancel-purchase').addEventListener('click', () => {
-          document.getElementById('offers-container').classList.remove('hidden');
-          document.getElementById('phone-input-section').classList.add('hidden');
-          selectedOffer = null;
-          stopPolling();
-        });
+      function handleSuccess(result, formatted, checkoutId) {
+        showNotification('✅ STK Push sent! Check your phone', 'success');
         
-        $('#new-purchase').addEventListener('click', () => {
-          document.getElementById('transaction-status').classList.add('hidden');
-          document.getElementById('offers-container').classList.remove('hidden');
-          selectedOffer = null;
-          stopPolling();
-          $('#phone').value = '';
-        });
+        const phoneSection = document.getElementById('phone-input-section');
+        const statusSection = document.getElementById('transaction-status');
+        
+        if (phoneSection) phoneSection.classList.add('hidden');
+        if (statusSection) statusSection.classList.remove('hidden');
+        
+        const statusMsg = document.getElementById('status-message');
+        if (statusMsg) {
+          statusMsg.innerHTML = `
+            <div class="flex flex-col items-center">
+              <i class="fas fa-spinner fa-pulse text-primary text-4xl mb-2"></i>
+              <p class="font-medium text-lg">STK Push Sent!</p>
+              <p class="text-sm text-gray-600 mt-2">📱 To: ${formatted}</p>
+              <p class="text-sm text-gray-600 mt-1">🔐 Enter your M-Pesa PIN to complete payment</p>
+              <div class="mt-6 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs text-gray-400 mt-4">Transaction ID: ${checkoutId?.slice(-8) || 'Processing...'}</p>
+              <p class="text-xs text-gray-400 mt-2">Amount: Sh ${selectedOffer?.amount || '0'}</p>
+            </div>`;
+        }
+        
+        // Clear any existing timeout
+        if (currentTimeout) clearTimeout(currentTimeout);
+        
+        // Update status after delay
+        currentTimeout = setTimeout(() => {
+          const statusMsgDiv = document.getElementById('status-message');
+          if (statusMsgDiv && statusSection && !statusSection.classList.contains('hidden')) {
+            statusMsgDiv.innerHTML = `
+              <div class="flex flex-col items-center">
+                <i class="fas fa-check-circle text-green-500 text-5xl mb-3"></i>
+                <p class="font-medium text-green-600">Payment Request Sent!</p>
+                <p class="text-sm text-gray-600 mt-2">Check your M-Pesa messages</p>
+                <p class="text-xs text-gray-400 mt-3">Complete the transaction on your phone</p>
+                <p class="text-xs text-gray-400 mt-1">Amount: Sh ${selectedOffer?.amount || '0'} charged to your M-Pesa</p>
+              </div>`;
+            showNotification('Check your phone to complete payment', 'success');
+          }
+        }, 5000);
       }
       
+      function initCancelAndNew() {
+        const cancelBtn = document.getElementById('cancel-purchase');
+        const newBtn = document.getElementById('new-purchase');
+        
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', () => {
+            const offersContainer = document.getElementById('offers-container');
+            const phoneSection = document.getElementById('phone-input-section');
+            
+            if (offersContainer) offersContainer.classList.remove('hidden');
+            if (phoneSection) phoneSection.classList.add('hidden');
+            selectedOffer = null;
+            
+            if (currentTimeout) clearTimeout(currentTimeout);
+          });
+        }
+        
+        if (newBtn) {
+          newBtn.addEventListener('click', () => {
+            const statusSection = document.getElementById('transaction-status');
+            const offersContainer = document.getElementById('offers-container');
+            
+            if (statusSection) statusSection.classList.add('hidden');
+            if (offersContainer) offersContainer.classList.remove('hidden');
+            selectedOffer = null;
+            
+            const phoneInput = $('#phone');
+            if (phoneInput) phoneInput.value = '';
+            
+            if (currentTimeout) clearTimeout(currentTimeout);
+          });
+        }
+      }
+      
+      // Initialize on page load
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(finishLoading, 500);
         initTabs();
